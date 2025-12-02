@@ -1,14 +1,40 @@
 services:
   db:
-    image: postgres:15
-    container_name: postgres_db
-    env_file: .env
-    ports:
-      - "${POSTGRES_PORT}:5432"
+    image: iiycbka/sql-orm-benchmarks-db:latest
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_HOST: ${POSTGRES_HOST}
     volumes:
-      - pgdata:/var/lib/postgresql/data
-      - ./db_init:/docker-entrypoint-initdb.d
+      - postgres_data:/var/lib/postgresql/data:rw
+    networks:
+      - root
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
+  runner:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_HOST: db
+    networks:
+      - root
 
 volumes:
-  pgdata:
+  postgres_data:
+
+networks:
+  root:
+    driver: bridge
