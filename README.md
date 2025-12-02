@@ -14,7 +14,52 @@ For stability the dump has been incorporated into the database image and
 published on Docker Hub at: 
 https://hub.docker.com/repository/docker/iiycbka/sql-orm-benchmarks-db.
 
+---
+
+### Running
+
 **IMPORTANT NOTE:** On each fresh run of `docker-compose` you must clear all volumes and any references from previous runs.
+
+The easiest way to bring up a solution is (example):
+```bash
+# from repo root
+./start.sh <solution>
+
+# stop and remove containers, networks and declared volumes
+./stop.sh <solution>
+```
+
+### Viewing benchmark results
+
+Each benchmark prints its result to stdout. These stdout lines are captured 
+by Docker and can be viewed via the runner container logs.
+
+From the repository root, after starting a solution (e.g. `./start.sh pony`), 
+view live output with the helper script:
+
+```bash
+# follow live runner logs for solution
+./logs.sh <solution>
+```
+
+You can also run the equivalent directly:
+```bash
+# with modern docker
+docker compose -f benchmarks/<solution>/docker-compose.yml logs -f runner
+
+# or with older docker-compose
+docker-compose -f benchmarks/<solution>/docker-compose.yml logs -f runner
+```
+
+List of existing solutions available for start/stop/logs (use the solution 
+name from this list in `./start.sh`, `./stop.sh` and `./logs.sh`):
+- pony
+
+For convenience, ready-to-use start.sh, stop.sh and logs.sh scripts are 
+included in the repository root. Simply run them from the repo root and pass 
+the solution name.
+
+---
 
 Stack: Python 3.12, PostgreSQL.\
 ORMs included: Pony ORM, Django ORM, SQLAlchemy, Tortoise ORM — plus raw SQL baseline.\
