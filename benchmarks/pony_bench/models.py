@@ -21,7 +21,7 @@ db = Database()
 class Booking(db.Entity):
   _table_ = 'bookings'
 
-  book_ref = PrimaryKey(str, max_length=6, sql_type='char(6)')
+  book_ref = PrimaryKey(str, max_len=6, sql_type='char(6)')
   book_date = Required(datetime, sql_type='timestamptz')
   total_amount = Required(Decimal, precision=10, scale=2)
 
@@ -74,7 +74,7 @@ class Segment(db.Entity):
 class AirplaneData(db.Entity):
   _table_ = 'airplanes_data'
 
-  airplane_code = PrimaryKey(str, max_length=3, sql_type='char(3)')
+  airplane_code = PrimaryKey(str, max_len=3, sql_type='char(3)')
   model = Required(Json)
   range = Required(int)
   speed = Required(int)
@@ -86,7 +86,7 @@ class AirplaneData(db.Entity):
 class AirportData(db.Entity):
   _table_ = 'airports_data'
 
-  airport_code = PrimaryKey(str, max_length=3, sql_type='char(3)')
+  airport_code = PrimaryKey(str, max_len=3, sql_type='char(3)')
   airport_name = Required(Json)
   city = Required(Json)
   country = Required(Json)
