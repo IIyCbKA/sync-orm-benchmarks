@@ -11,7 +11,7 @@ else
 fi
 
 declare -A MAP=(
-  ["pony"]="benchmarks/pony/docker-compose.yml"
+  ["pony"]="benchmarks/pony_bench/docker-compose.yml"
 )
 
 if [ "$#" -ne 1 ]; then

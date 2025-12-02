@@ -1,4 +1,4 @@
-ORM & SQL Performance Bench (Python 3.12, Postgres)
+ORM & SQL Performance Bench [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/IIyCbKA/sql-orm-benchmarks/blob/main/LICENSE) [![Python](https://img.shields.io/badge/Python-3.12-blue)](https://www.python.org/downloads/release/python-3120/) [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue)](https://www.postgresql.org/)
 ==============
 
 A reproducible benchmarking project to compare raw SQL and popular Python ORMs on PostgreSQL.
@@ -58,6 +58,12 @@ name from this list in `./start.sh`, `./stop.sh` and `./logs.sh`):
 For convenience, ready-to-use start.sh, stop.sh and logs.sh scripts are 
 included in the repository root. Simply run them from the repo root and pass 
 the solution name.
+
+---
+
+### Tests:
+
+1. Insert: Single (single entry at a time)
 
 ---
 
