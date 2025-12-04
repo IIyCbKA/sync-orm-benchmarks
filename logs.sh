@@ -11,9 +11,9 @@ else
 fi
 
 if [ -f "docker-compose.yaml" ]; then
-  COMPOSE_FILE="docker-compose.yml"
+  COMPOSE_FILE="docker-compose.yaml"
 else
-  echo "ERROR: compose file not found (looked for docker-compose.yaml) in current dir." >&2
+  echo "ERROR: compose file not found in current dir." >&2
   exit 2
 fi
 
