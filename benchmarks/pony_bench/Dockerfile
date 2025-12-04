@@ -42,7 +42,7 @@ RUN chmod +x /pony_bench/tests_sync/run.sh
 RUN printf '%s\n' '#!/bin/sh' \
     'set -e' \
     '' \
-    'exec ./pony_bench/run.sh' > /entrypoint.sh \
+    'exec /pony_bench/tests_sync/run.sh' > /entrypoint.sh \
 && chmod +x /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]

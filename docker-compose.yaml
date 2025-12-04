@@ -12,7 +12,7 @@ services:
     networks:
       - root
     healthcheck:
-      test: ["/usr/local/bin/check_db.sh"]
+      test: ["CMD", "/usr/local/bin/check_db.sh"]
       interval: 10s
       timeout: 5s
       retries: 60
