@@ -18,15 +18,21 @@ https://hub.docker.com/repository/docker/iiycbka/sql-orm-benchmarks-db.
 
 ### Running
 
-**IMPORTANT NOTE:** On each fresh run of `docker-compose` you must clear all 
-volumes and any references from previous runs.
-
 For convenience (it's recommended), ready-to-use `start.sh`, `stop.sh` and 
 `logs.sh` scripts are included in the repository root. Simply run them from 
-the repo root and pass the solution name (required) and the mode name (optional).
+the repo root. Specify the solution name (required) and the mode name 
+(optional) for `start.sh`.
+
+Each benchmark prints its result to stdout. These stdout lines are captured 
+by Docker and can be viewed via the runner container logs.
+
+Usage example:
 ```bash
 # from repo root
 ./start.sh <solution> <mode>
+
+# follow live runner logs
+./logs.sh
 
 # stop and remove containers, networks and declared volumes
 ./stop.sh
@@ -42,24 +48,14 @@ default is sync):
 - sync
 - async
 
+**IMPORTANT NOTE:** On each fresh run of `docker-compose` (this is done 
+in `stop.sh`) you must clear all volumes and any references from previous runs.
+
 **IMPORTANT NOTE:** In the Docker Compose setup we use a special healthcheck 
 for the database container. It is included in the same image as the database 
 dump and is designed to verify the existence of all tables defined in the 
 database schema shown above. In other words, the check will only pass once 
 every table in the schema has been created.
-
-### Viewing benchmark results
-
-Each benchmark prints its result to stdout. These stdout lines are captured 
-by Docker and can be viewed via the runner container logs.
-
-From the repository root, after starting a solution (e.g. `./start.sh pony`), 
-view live output with the helper script:
-
-```bash
-# follow live runner logs
-./logs.sh
-```
 
 ---
 
