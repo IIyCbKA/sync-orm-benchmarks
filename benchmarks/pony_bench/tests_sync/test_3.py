@@ -1,7 +1,7 @@
 from datetime import datetime, UTC
 from decimal import Decimal
 from pony.orm import db_session, commit
-from models import db, Booking
+from core.models import db, Booking
 import os
 import time
 
@@ -21,17 +21,17 @@ def main() -> None:
   start = time.time()
 
   with db_session():
-    for i in range(COUNT):
-      try:
+    try:
+      for i in range(COUNT):
         db.insert(Booking,
           book_ref=generate_book_ref(i),
           book_date=datetime.now(UTC),
           total_amount=generate_amount(i),
         )
-      except Exception:
-        pass
 
-    commit()
+      commit()
+    except Exception:
+      pass
 
   end = time.time()
   elapsed = end - start

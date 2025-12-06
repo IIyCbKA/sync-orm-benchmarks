@@ -1,7 +1,7 @@
 from datetime import datetime, UTC
 from decimal import Decimal
 from pony.orm import db_session, commit
-from models import Booking
+from core.models import Booking
 import os
 import time
 

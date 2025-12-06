@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta, UTC
 from decimal import Decimal
 from pony.orm import db_session
-from models import Booking
+from core.models import Booking
 import time
 
 def main() -> None:
