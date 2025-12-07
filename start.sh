@@ -2,7 +2,7 @@
 set -euo pipefail
 
 if [ ! -f .env ]; then
-  echo "ERROR: .env not found in $(pwd). Create .env with POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD." >&2
+  echo "ERROR: .env not found in $(pwd)." >&2
   exit 1
 fi
 
@@ -14,6 +14,8 @@ echo ">>> Loaded .env"
 : "${POSTGRES_DB:?ERROR: POSTGRES_DB not set in .env}"
 : "${POSTGRES_USER:?ERROR: POSTGRES_USER not set in .env}"
 : "${POSTGRES_PASSWORD:?ERROR: POSTGRES_PASSWORD not set in .env}"
+: "${POSTGRES_RUN_VOLUME:?ERROR: POSTGRES_RUN_VOLUME not set in .env}"
+: "${POSTGRES_GOLDEN_VOLUME:?ERROR: POSTGRES_GOLDEN_VOLUME not set in .env}"
 
 DC=""
 if command -v docker-compose >/dev/null 2>&1; then
@@ -52,25 +54,18 @@ case "$MODE" in
     ;;
 esac
 
-
-GOLDEN_VOL="golden-volume"
-RUN_VOL="run-volume"
-
 export RUNNER_BUILD_CONTEXT="$CONTEXT"
 export RUNNER_NAME="$NAME"
 export RUNNER_COMMAND="$MODE"
-export POSTGRES_RUN_VOLUME="$RUN_VOL"
-export POSTGRES_GOLDEN_VOLUME="$GOLDEN_VOL"
-
 
 ensure_golden_volume() {
-  if docker volume inspect "$GOLDEN_VOL" >/dev/null 2>&1; then
-    echo ">>> Golden volume exists: $GOLDEN_VOL"
+  if docker volume inspect "$POSTGRES_GOLDEN_VOLUME" >/dev/null 2>&1; then
+    echo ">>> Golden volume exists: $POSTGRES_GOLDEN_VOLUME"
     return 0
   fi
 
-  echo ">>> Creating golden volume: $GOLDEN_VOL"
-  docker volume create "$GOLDEN_VOL" >/dev/null
+  echo ">>> Creating golden volume: $POSTGRES_GOLDEN_VOLUME"
+  docker volume create "$POSTGRES_GOLDEN_VOLUME" >/dev/null
 
   echo ">>> Initializing golden DB from image..."
   local init_ctr="init-golden"
@@ -80,13 +75,13 @@ ensure_golden_volume() {
     -e POSTGRES_DB="${POSTGRES_DB}" \
     -e POSTGRES_USER="${POSTGRES_USER}" \
     -e POSTGRES_PASSWORD="${POSTGRES_PASSWORD}" \
-    -v "$GOLDEN_VOL":/var/lib/postgresql/data:rw \
+    -v "$POSTGRES_GOLDEN_VOLUME":/var/lib/postgresql/data:rw \
     iiycbka/sql-orm-benchmarks-db:latest >/dev/null
 
   echo ">>> Waiting for restore log line..."
 
   local ok=0
-  for _ in $(seq 1 120); do
+  for _ in $(seq 1 600); do
     if docker logs "$init_ctr" 2>&1 | grep -q "Restore finished."; then
       ok=1
       break
@@ -110,19 +105,19 @@ ensure_golden_volume() {
 
 
 recreate_run_volume_from_golden() {
-  echo ">>> Preparing run volume: $RUN_VOL"
+  echo ">>> Preparing run volume: $POSTGRES_RUN_VOLUME"
 
-  if docker volume inspect "$RUN_VOL" >/dev/null 2>&1; then
-    echo ">>> Removing existing run volume: $RUN_VOL"
-    docker volume rm "$RUN_VOL" >/dev/null
+  if docker volume inspect "$POSTGRES_RUN_VOLUME" >/dev/null 2>&1; then
+    echo ">>> Removing existing run volume: $POSTGRES_RUN_VOLUME"
+    docker volume rm "$POSTGRES_RUN_VOLUME" >/dev/null
   fi
 
-  docker volume create "$RUN_VOL" >/dev/null
+  docker volume create "$POSTGRES_RUN_VOLUME" >/dev/null
 
   echo ">>> Copying data golden -> run (fast clone)..."
   docker run --rm \
-    -v "$GOLDEN_VOL":/from:ro \
-    -v "$RUN_VOL":/to:rw \
+    -v "$POSTGRES_GOLDEN_VOLUME":/from:ro \
+    -v "$POSTGRES_RUN_VOLUME":/to:rw \
     alpine:3.20 sh -c \
     "cd /from && tar cf - . | (cd /to && tar xpf -)" >/dev/null
 
@@ -132,8 +127,8 @@ recreate_run_volume_from_golden() {
 
 echo "Using compose command: $DC"
 echo "Starting '$NAME' (mode: $MODE) with context '$CONTEXT' ..."
-echo "Golden volume: $GOLDEN_VOL"
-echo "Run volume: $RUN_VOL"
+echo "Golden volume: $POSTGRES_GOLDEN_VOLUME"
+echo "Run volume: $POSTGRES_RUN_VOLUME"
 
 ensure_golden_volume
 recreate_run_volume_from_golden
