@@ -41,13 +41,14 @@ Usage example:
 
 List of existing solutions available for start/stop/logs (use the solution 
 name from this list for `./start.sh`):
+- django
 - pony
 - sqlalchemy
 
 List of modes for solutions (use the mode name from this list for `./start.sh`, 
-default is sync):
-- sync
-- async
+with selected solution. Default is sync):
+- sync: django | pony | sqlalchemy
+- async: django | sqlalchemy
 
 **IMPORTANT NOTE:** On each fresh run of `docker-compose` (this is done 
 in `stop.sh`) you must clear all runtime volumes from previous runs.
