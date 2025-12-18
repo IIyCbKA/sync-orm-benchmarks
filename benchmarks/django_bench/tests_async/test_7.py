@@ -7,7 +7,7 @@ django.setup()
 from core.models import Booking
 
 async def main() -> None:
-  start = time.time()
+  start = time.perf_counter_ns()
 
   try:
     book = await Booking.objects.afirst()
@@ -16,7 +16,7 @@ async def main() -> None:
   except Exception:
     pass
 
-  end = time.time()
+  end = time.perf_counter_ns()
   elapsed = end - start
 
   print(

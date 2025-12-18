@@ -6,14 +6,14 @@ django.setup()
 from core.models import Booking
 
 def main() -> None:
-  start = time.time()
+  start = time.perf_counter_ns()
 
   try:
     _ = list(Booking.objects.all())
   except Exception:
     pass
 
-  end = time.time()
+  end = time.perf_counter_ns()
   elapsed = end - start
 
   print(

@@ -40,14 +40,14 @@ def batch_create_sync() -> None:
 
 
 async def main() -> None:
-  start = time.time()
+  start = time.perf_counter_ns()
 
   try:
     await sync_to_async(batch_create_sync, thread_sensitive=True)()
   except Exception:
     pass
 
-  end = time.time()
+  end = time.perf_counter_ns()
   elapsed = end - start
 
   print(

@@ -7,14 +7,14 @@ django.setup()
 from core.models import Booking
 
 async def main() -> None:
-  start = time.time()
+  start = time.perf_counter_ns()
 
   try:
     _ = [b async for b in Booking.objects.all()]
   except Exception:
     pass
 
-  end = time.time()
+  end = time.perf_counter_ns()
   elapsed = end - start
 
   print(

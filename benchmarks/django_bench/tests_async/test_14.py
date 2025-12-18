@@ -16,7 +16,7 @@ def generate_book_ref(i: int) -> str:
 
 
 async def main() -> None:
-  start = time.time()
+  start = time.perf_counter_ns()
 
   try:
     async with transaction.atomic():
@@ -27,7 +27,7 @@ async def main() -> None:
   except Exception:
     pass
 
-  end = time.time()
+  end = time.perf_counter_ns()
   elapsed = end - start
 
   print(

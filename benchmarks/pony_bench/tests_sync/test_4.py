@@ -32,7 +32,7 @@ def get_curr_date():
 
 
 def main() -> None:
-  start = time.time()
+  start = time.perf_counter_ns()
 
   with db_session():
     try:
@@ -55,7 +55,7 @@ def main() -> None:
     except Exception:
       pass
 
-  end = time.time()
+  end = time.perf_counter_ns()
   elapsed = end - start
 
   print(

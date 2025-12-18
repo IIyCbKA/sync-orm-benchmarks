@@ -19,7 +19,7 @@ async def main() -> None:
   date_from = now - timedelta(days=30)
   amount_low = Decimal('50.00')
   amount_high = Decimal('500.00')
-  start = time.time()
+  start = time.perf_counter_ns()
 
   try:
     _ = [r async for r in Booking.objects.filter(
@@ -30,7 +30,7 @@ async def main() -> None:
   except Exception:
     pass
 
-  end = time.time()
+  end = time.perf_counter_ns()
   elapsed = end - start
 
   print(

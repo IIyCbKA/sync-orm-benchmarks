@@ -14,7 +14,7 @@ def generate_book_ref(i: int) -> str:
 
 
 def main() -> None:
-  start = time.time()
+  start = time.perf_counter_ns()
 
   for i in range(COUNT):
     try:
@@ -24,7 +24,7 @@ def main() -> None:
     except Exception:
       pass
 
-  end = time.time()
+  end = time.perf_counter_ns()
   elapsed = end - start
 
   print(

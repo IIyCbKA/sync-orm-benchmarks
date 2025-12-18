@@ -10,7 +10,7 @@ def generate_book_ref(i: int) -> str:
 
 
 def main() -> None:
-  start = time.time()
+  start = time.perf_counter_ns()
 
   try:
     book = Booking.objects.filter(book_ref=generate_book_ref(1)).first()
@@ -19,7 +19,7 @@ def main() -> None:
   except Exception:
     pass
 
-  end = time.time()
+  end = time.perf_counter_ns()
   elapsed = end - start
 
   print(
