@@ -1,5 +1,5 @@
 from decimal import Decimal
-from pony.orm import db_session, commit, select, flush
+from pony.orm import db_session, select, flush
 from core.models import Booking
 import os
 import time

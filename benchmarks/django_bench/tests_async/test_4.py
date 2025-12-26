@@ -7,7 +7,9 @@ import time
 import django
 django.setup()
 
+from asgiref.sync import sync_to_async
 from core.models import Booking, Ticket
+from django.db import transaction
 from django.utils import timezone
 
 COUNT = int(os.environ.get('ITERATIONS', '2500'))
@@ -35,30 +37,35 @@ def get_curr_date():
   return timezone.now()
 
 
-async def create_nested(i: int):
-  try:
-    booking = await Booking.objects.acreate(
-      book_ref=generate_book_ref(i),
-      book_date=get_curr_date(),
-      total_amount=generate_amount(i),
-    )
+@sync_to_async
+def create_nested_sync():
+  for i in range(COUNT):
+    try:
+      with transaction.atomic():
+        booking = Booking.objects.create(
+          book_ref=generate_book_ref(i),
+          book_date=get_curr_date(),
+          total_amount=generate_amount(i),
+        )
 
-    _ = await Ticket.objects.acreate(
-      ticket_no=generate_ticket_no(i),
-      book_ref=booking,
-      passenger_id=generate_passenger_id(i),
-      passenger_name='Test',
-      outbound=True
-    )
-  except Exception:
-    pass
+        _ = Ticket.objects.create(
+          ticket_no=generate_ticket_no(i),
+          book_ref=booking,
+          passenger_id=generate_passenger_id(i),
+          passenger_name='Test',
+          outbound=True
+        )
+    except Exception:
+      pass
 
 
 async def main() -> None:
   start = time.perf_counter_ns()
 
-  tasks = [create_nested(i) for i in range(COUNT)]
-  await asyncio.gather(*tasks)
+  try:
+    await create_nested_sync()
+  except Exception:
+    pass
 
   end = time.perf_counter_ns()
   elapsed = end - start

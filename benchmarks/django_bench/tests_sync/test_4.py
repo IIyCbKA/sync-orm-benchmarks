@@ -7,6 +7,7 @@ import django
 django.setup()
 
 from core.models import Booking, Ticket
+from django.db import transaction
 from django.utils import timezone
 
 COUNT = int(os.environ.get('ITERATIONS', '2500'))
@@ -39,19 +40,20 @@ def main() -> None:
 
   for i in range(COUNT):
     try:
-      booking = Booking.objects.create(
-        book_ref=generate_book_ref(i),
-        book_date=get_curr_date(),
-        total_amount=generate_amount(i),
-      )
+      with transaction.atomic():
+        booking = Booking.objects.create(
+          book_ref=generate_book_ref(i),
+          book_date=get_curr_date(),
+          total_amount=generate_amount(i),
+        )
 
-      _ = Ticket.objects.create(
-        ticket_no=generate_ticket_no(i),
-        book_ref=booking,
-        passenger_id=generate_passenger_id(i),
-        passenger_name='Test',
-        outbound=True
-      )
+        _ = Ticket.objects.create(
+          ticket_no=generate_ticket_no(i),
+          book_ref=booking,
+          passenger_id=generate_passenger_id(i),
+          passenger_name='Test',
+          outbound=True
+        )
     except Exception:
       pass
 

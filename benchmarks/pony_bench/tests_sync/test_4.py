@@ -1,7 +1,7 @@
 from datetime import datetime, UTC
 from decimal import Decimal
 from functools import lru_cache
-from pony.orm import db_session, commit
+from pony.orm import db_session, commit, flush
 from core.models import Booking, Ticket
 import os
 import time
@@ -35,13 +35,15 @@ def main() -> None:
   start = time.perf_counter_ns()
 
   with db_session():
-    try:
-      for i in range(COUNT):
+    for i in range(COUNT):
+      try:
         booking = Booking(
           book_ref=generate_book_ref(i),
           book_date=get_curr_date(),
           total_amount=generate_amount(i)
         )
+
+        flush()
 
         _ = Ticket(
           ticket_no=generate_ticket_no(i),
@@ -51,9 +53,9 @@ def main() -> None:
           outbound=True
         )
 
-      commit()
-    except Exception:
-      pass
+        commit()
+      except Exception:
+        pass
 
   end = time.perf_counter_ns()
   elapsed = end - start

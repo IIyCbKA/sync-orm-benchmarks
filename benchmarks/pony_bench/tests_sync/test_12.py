@@ -1,7 +1,7 @@
 from datetime import datetime, UTC
 from decimal import Decimal
 from functools import lru_cache
-from pony.orm import db_session, commit, flush
+from pony.orm import db_session, flush
 from core.models import Booking
 import os
 import time
