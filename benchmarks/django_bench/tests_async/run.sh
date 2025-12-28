@@ -2,6 +2,8 @@
 
 cd $(dirname $0)
 
+export DJANGO_SETTINGS_MODULE="core.settings"
+
 # Add a root dir for correct imports
 export PYTHONPATH=..
 

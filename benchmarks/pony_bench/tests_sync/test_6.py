@@ -3,20 +3,20 @@ from core.models import Booking
 import time
 
 def main() -> None:
-  start = time.time()
+  start = time.perf_counter_ns()
 
   with db_session():
     try:
-        _ = Booking.select.first()
+        _ = Booking.select().first()
     except Exception:
       pass
 
-  end = time.time()
+  end = time.perf_counter_ns()
   elapsed = end - start
 
   print(
     f'PonyORM. Test 6. Find first\n'
-    f'elapsed_sec={elapsed:.4f};'
+    f'elapsed_ns={elapsed:.0f};'
   )
 
 

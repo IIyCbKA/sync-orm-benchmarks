@@ -1,8 +1,12 @@
 from decimal import Decimal
-from pony.orm import db_session, select, flush
-from core.models import Booking
 import os
 import time
+
+import django
+django.setup()
+
+from core.models import Booking
+from django.db import transaction
 
 COUNT = int(os.environ.get('ITERATIONS', '2500'))
 
@@ -16,17 +20,16 @@ def main() -> None:
 
   try:
     refs = [generate_book_ref(i) for i in range(COUNT)]
+    bookings = list(Booking.objects.filter(
+      book_ref__in=refs).prefetch_related('tickets'))
 
-    with db_session():
-      bookings = list(select(
-        b for b in Booking if b.book_ref in refs).prefetch(Booking.tickets))
-
+    with transaction.atomic():
       for booking in bookings:
         booking.total_amount += Decimal('10.00')
-        flush()
-        for ticket in booking.tickets:
+        booking.save(update_fields=['total_amount'])
+        for ticket in booking.tickets.all():
           ticket.passenger_name = 'Nested update'
-          flush()
+          ticket.save(update_fields=['passenger_name'])
   except Exception:
     pass
 
@@ -34,7 +37,7 @@ def main() -> None:
   elapsed = end - start
 
   print(
-    f'PonyORM. Test 13. Nested batch update. {COUNT} entries\n'
+    f'Django ORM (sync). Test 13. Nested batch update. {COUNT} entries\n'
     f'elapsed_ns={elapsed:.0f};'
   )
 

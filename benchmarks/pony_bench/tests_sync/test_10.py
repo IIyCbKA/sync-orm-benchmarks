@@ -14,9 +14,9 @@ def main() -> None:
   date_from = now - timedelta(days=30)
   amount_low = Decimal('50.00')
   amount_high = Decimal('500.00')
-  start = time.time()
+  start = time.perf_counter_ns()
 
-  with (db_session()):
+  with db_session():
     try:
       _ = Booking.select(lambda b:
         amount_low <= b.total_amount <= amount_high
@@ -26,12 +26,12 @@ def main() -> None:
     except Exception:
       pass
 
-  end = time.time()
+  end = time.perf_counter_ns()
   elapsed = end - start
 
   print(
     f'PonyORM. Test 10. Filter, paginate & sort\n'
-    f'elapsed_sec={elapsed:.4f};'
+    f'elapsed_ns={elapsed:.0f};'
   )
 
 

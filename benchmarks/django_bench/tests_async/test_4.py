@@ -1,10 +1,16 @@
-from datetime import datetime, UTC
 from decimal import Decimal
 from functools import lru_cache
-from pony.orm import db_session, commit, flush
-from core.models import Booking, Ticket
+import asyncio
 import os
 import time
+
+import django
+django.setup()
+
+from asgiref.sync import sync_to_async
+from core.models import Booking, Ticket
+from django.db import transaction
+from django.utils import timezone
 
 COUNT = int(os.environ.get('ITERATIONS', '2500'))
 
@@ -28,43 +34,47 @@ def generate_amount(i: int) -> Decimal:
 
 @lru_cache(1)
 def get_curr_date():
-  return datetime.now(UTC)
+  return timezone.now()
 
 
-def main() -> None:
-  start = time.perf_counter_ns()
-
-  with db_session():
-    for i in range(COUNT):
-      try:
-        booking = Booking(
+@sync_to_async
+def create_nested_sync():
+  for i in range(COUNT):
+    try:
+      with transaction.atomic():
+        booking = Booking.objects.create(
           book_ref=generate_book_ref(i),
           book_date=get_curr_date(),
-          total_amount=generate_amount(i)
+          total_amount=generate_amount(i),
         )
 
-        flush()
-
-        _ = Ticket(
+        _ = Ticket.objects.create(
           ticket_no=generate_ticket_no(i),
           book_ref=booking,
           passenger_id=generate_passenger_id(i),
           passenger_name='Test',
           outbound=True
         )
+    except Exception:
+      pass
 
-        commit()
-      except Exception:
-        pass
+
+async def main() -> None:
+  start = time.perf_counter_ns()
+
+  try:
+    await create_nested_sync()
+  except Exception:
+    pass
 
   end = time.perf_counter_ns()
   elapsed = end - start
 
   print(
-    f'PonyORM. Test 4. Nested create. {COUNT} entities\n'
+    f'Django ORM (async). Test 4. Nested create. {COUNT} entities\n'
     f'elapsed_ns={elapsed:.0f};'
   )
 
 
 if __name__ == '__main__':
-  main()
+  asyncio.run(main())

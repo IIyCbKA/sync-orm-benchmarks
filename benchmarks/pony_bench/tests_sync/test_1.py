@@ -24,10 +24,10 @@ def get_curr_date():
 
 
 def main() -> None:
-  start = time.time()
+  start = time.perf_counter_ns()
 
-  for i in range(COUNT):
-    with db_session():
+  with db_session():
+    for i in range(COUNT):
       try:
         Booking(
           book_ref=generate_book_ref(i),
@@ -39,12 +39,12 @@ def main() -> None:
       except Exception:
         pass
 
-  end = time.time()
+  end = time.perf_counter_ns()
   elapsed = end - start
 
   print(
     f'PonyORM. Test 1. Single create. {COUNT} entities\n'
-    f'elapsed_sec={elapsed:.4f};'
+    f'elapsed_ns={elapsed:.0f};'
   )
 
 

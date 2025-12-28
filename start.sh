@@ -28,15 +28,21 @@ else
 fi
 
 declare -A MAP=(
+  ["django"]="./benchmarks/django_bench"
   ["pony"]="./benchmarks/pony_bench"
   ["sqlalchemy"]="./benchmarks/sqlalchemy_bench"
+)
+
+declare -A MODES_MAP=(
+  ["django"]="sync async"
+  ["pony"]="sync"
+  ["sqlalchemy"]="sync async"
 )
 
 NAME="${1:-}"
 MODE="${2:-sync}"
 if [ -z "$NAME" ]; then
-  echo "Usage: $0 <solution-name> [sync|async]"
-  echo "Available: ${!MAP[@]}"
+  echo "Usage: $0 <solution-name>"
   exit 1
 fi
 
@@ -46,13 +52,20 @@ if [ -z "$CONTEXT" ]; then
   exit 2
 fi
 
-case "$MODE" in
-  sync|async) ;;
-  *)
-    echo "ERROR: unknown mode: '$MODE'. Use 'sync' or 'async'." >&2
-    exit 3
-    ;;
-esac
+ALLOWED="${MODES_MAP[$NAME]:-sync}"
+
+ok=0
+for m in $ALLOWED; do
+  if [ "$m" = "$MODE" ]; then
+    ok=1
+    break
+  fi
+done
+
+if [ "$ok" -ne 1 ]; then
+  echo "ERROR: unknown mode: '$MODE' for solution '$NAME'. Available: $ALLOWED" >&2
+  exit 3
+fi
 
 export RUNNER_BUILD_CONTEXT="$CONTEXT"
 export RUNNER_NAME="$NAME"
@@ -81,7 +94,7 @@ ensure_golden_volume() {
   echo ">>> Waiting for restore log line..."
 
   local ok=0
-  for _ in $(seq 1 600); do
+  for _ in $(seq 1 1200); do
     if docker logs "$init_ctr" 2>&1 | grep -q "Restore finished."; then
       ok=1
       break

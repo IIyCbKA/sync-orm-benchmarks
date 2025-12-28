@@ -30,6 +30,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_HOST: db
       POSTGRES_PORT: ${POSTGRES_PORT}
+      WARMUP_ITERATIONS: ${WARMUP_ITERATIONS}
     command: ${RUNNER_COMMAND:-sync}
     networks:
       - root

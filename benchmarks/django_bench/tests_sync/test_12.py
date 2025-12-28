@@ -1,10 +1,13 @@
-from datetime import datetime, UTC
 from decimal import Decimal
 from functools import lru_cache
-from pony.orm import db_session, flush
-from core.models import Booking
 import os
 import time
+
+import django
+django.setup()
+
+from core.models import Booking
+from django.utils import timezone
 
 COUNT = int(os.environ.get('ITERATIONS', '2500'))
 
@@ -20,28 +23,27 @@ def get_new_amount(i: int) -> Decimal:
 
 @lru_cache(1)
 def get_curr_date():
-  return datetime.now(UTC)
+  return timezone.now()
 
 
 def main() -> None:
   start = time.perf_counter_ns()
 
-  with db_session():
-    for i in range(COUNT):
-      try:
-        booking = Booking.get(book_ref=generate_book_ref(i))
-        if booking:
-          booking.total_amount = get_new_amount(i)
-          booking.book_date = get_curr_date()
-          flush()
-      except Exception:
-        pass
+  for i in range(COUNT):
+    try:
+      booking = Booking.objects.filter(book_ref=generate_book_ref(i)).first()
+      if booking:
+        booking.total_amount = get_new_amount(i)
+        booking.book_date = get_curr_date()
+        booking.save(update_fields=['total_amount', 'book_date'])
+    except Exception:
+      pass
 
   end = time.perf_counter_ns()
   elapsed = end - start
 
   print(
-    f'PonyORM. Test 12. Single update. {COUNT} entries\n'
+    f'Django ORM (sync). Test 12. Single update. {COUNT} entries\n'
     f'elapsed_ns={elapsed:.0f};'
   )
 

@@ -1,7 +1,7 @@
 from datetime import datetime, UTC
 from decimal import Decimal
 from functools import lru_cache
-from pony.orm import db_session, commit
+from pony.orm import db_session
 from core.models import db, Booking
 import os
 import time
@@ -24,7 +24,7 @@ def get_curr_date():
 
 
 def main() -> None:
-  start = time.time()
+  start = time.perf_counter_ns()
 
   with db_session():
     try:
@@ -34,17 +34,15 @@ def main() -> None:
           book_date=get_curr_date(),
           total_amount=generate_amount(i),
         )
-
-      commit()
     except Exception:
       pass
 
-  end = time.time()
+  end = time.perf_counter_ns()
   elapsed = end - start
 
   print(
     f'PonyORM. Test 3. Bulk create. {COUNT} entities\n'
-    f'elapsed_sec={elapsed:.4f};'
+    f'elapsed_ns={elapsed:.0f};'
   )
 
 

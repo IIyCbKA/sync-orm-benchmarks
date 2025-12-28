@@ -1,27 +1,28 @@
-from pony.orm import db_session
-from core.models import Booking
+from pony.orm import db_session, left_join
+from core.models import Ticket
 import time
 
 def generate_book_ref(i: int) -> str:
-  return f'a{i:05d}'
+  return f'd{i:05d}'
 
 
 def main() -> None:
-  start = time.time()
+  start = time.perf_counter_ns()
 
   with db_session():
     try:
-      book = Booking.get(book_ref=generate_book_ref(1))
-      _ = len(book.tickets)
+      _ = list(left_join(
+        (t, b) for t in Ticket for b in t.book_ref if b.book_ref == generate_book_ref(1)
+      ))
     except Exception:
       pass
 
-  end = time.time()
+  end = time.perf_counter_ns()
   elapsed = end - start
 
   print(
     f'PonyORM. Test 9. Nested find unique\n'
-    f'elapsed_sec={elapsed:.4f};'
+    f'elapsed_ns={elapsed:.0f};'
   )
 
 
