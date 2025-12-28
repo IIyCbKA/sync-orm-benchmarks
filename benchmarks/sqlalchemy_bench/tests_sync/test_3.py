@@ -23,35 +23,30 @@ def generate_amount(i: int) -> Decimal:
 def get_curr_date():
     return datetime.now(UTC)
 
-
 def main() -> None:
-    start = time.time()
+    start = time.perf_counter_ns()
 
-    rows = []
-    curr_date = get_curr_date()
+    objs = [
+        Booking(
+            book_ref=generate_book_ref(i),
+            book_date=get_curr_date(),
+            total_amount=generate_amount(i),
+        )
+        for i in range(COUNT)
+    ]
 
-    for i in range(COUNT):
-        rows.append({
-            "book_ref": generate_book_ref(i),
-            "book_date": curr_date,
-            "total_amount": generate_amount(i),
-        })
-
+    session = SessionLocal()
     try:
-        with SessionLocal() as session:
-            session.execute(
-                insert(Booking),
-                rows,
-            )
-            session.commit()
-    except Exception:
-        pass
+        with session.begin():
+            session.bulk_save_objects(objs)
+    except Exception as e:
+        print(e)
 
-    elapsed = time.time() - start
+    elapsed = time.perf_counter_ns() - start
 
     print(
         f'SQLAlchemy. Test 3. Bulk create. {COUNT} entities\n'
-        f'elapsed_sec={elapsed:.4f};'
+        f'elapsed_ns={elapsed:.0f};'
     )
 
 

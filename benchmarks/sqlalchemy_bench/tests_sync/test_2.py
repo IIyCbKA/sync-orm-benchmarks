@@ -24,10 +24,11 @@ def get_curr_date():
 
 
 def main() -> None:
-    start = time.time()
+    start = time.perf_counter_ns()
 
     try:
-        with SessionLocal() as session:
+        session = SessionLocal()
+        with session.begin() as transaction:
             for i in range(COUNT):
                 item = Booking(
                     book_ref=generate_book_ref(i),
@@ -37,14 +38,14 @@ def main() -> None:
                 session.add(item)
 
             session.commit()
-    except Exception:
-        pass
+    except Exception as e:
+        print(e)
 
-    elapsed = time.time() - start
+    elapsed = time.perf_counter_ns() - start
 
     print(
         f'SQLAlchemy. Test 2. Batch create. {COUNT} entities\n'
-        f'elapsed_sec={elapsed:.4f};'
+        f'elapsed_ns={elapsed:.0f};'
     )
 
 

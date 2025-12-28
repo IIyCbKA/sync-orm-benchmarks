@@ -25,11 +25,11 @@ def get_curr_date():
 
 
 def main() -> None:
-    start = time.time()
+    start = time.perf_counter_ns()
 
     try:
-        for i in range(COUNT):
-            with SessionLocal() as session:
+        with SessionLocal() as session:
+            for i in range(COUNT):
                 booking = session.scalars(
                     select(Booking).where(Booking.book_ref == generate_book_ref(i))
                 ).first()
@@ -37,16 +37,15 @@ def main() -> None:
                 if booking:
                     booking.total_amount = get_new_amount(i)
                     booking.book_date = get_curr_date()
-
-                session.commit()
+                    session.flush()
     except Exception:
         pass
 
-    elapsed = time.time() - start
+    elapsed = time.perf_counter_ns() - start
 
     print(
         f'SQLAlchemy. Test 12. Single update. {COUNT} entries\n'
-        f'elapsed_sec={elapsed:.4f};'
+        f'elapsed_ns={elapsed:.0f};'
     )
 
 

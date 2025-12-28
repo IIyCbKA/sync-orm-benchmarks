@@ -9,7 +9,7 @@ COUNT = int(os.environ.get('ITERATIONS', '2500'))
 
 
 def generate_book_ref(i: int) -> str:
-    return f'a{i:05d}'
+    return f'b{i:05d}'
 
 
 def main() -> None:
@@ -17,22 +17,23 @@ def main() -> None:
 
     session = SessionLocal()
     try:
-        booking = session.scalars(
-            select(Booking)
-            .where(Booking.book_ref == generate_book_ref(i))
-            .limit(1)
-        ).first()
+        for i in range(COUNT):
+            booking = session.scalars(
+                select(Booking)
+                .where(Booking.book_ref == generate_book_ref(i))
+                .limit(1)
+            ).first()
 
-        if booking:
-            session.delete(booking)
-            session.flush()
-    except Exception:
-        pass
+            if booking:
+                session.delete(booking)
+                session.flush()
+    except Exception as e:
+        print(e)
 
     elapsed = time.perf_counter_ns() - start
 
     print(
-        f'SQLAlchemy. Test 14. Batch delete. {COUNT} entries\n'
+        f'SQLAlchemy. Test 15. Single delete. {COUNT} entries\n'
         f'elapsed_ns={elapsed:.0f};'
     )
 

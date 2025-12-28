@@ -23,28 +23,33 @@ def get_curr_date():
     return datetime.now(UTC)
 
 
+def create(session, obj):
+    session.add(obj)
+    session.flush()
+    return obj
+
 def main() -> None:
-    start = time.time()
-
-    for i in range(COUNT):
-        try:
-            with SessionLocal() as session:
-                item = Booking(
-                    book_ref=generate_book_ref(i),
-                    book_date=get_curr_date(),
-                    total_amount=generate_amount(i),
+    start = time.perf_counter_ns()
+    session = SessionLocal()
+    with session.begin():
+        for i in range(COUNT):
+            try:
+                create(
+                    session,
+                    Booking(
+                        book_ref=generate_book_ref(i),
+                        book_date=get_curr_date(),
+                        total_amount=generate_amount(i),
+                    )
                 )
+            except Exception as e:
+                print(e)
 
-                session.add(item)
-                session.commit()
-        except Exception:
-            pass
-
-    elapsed = time.time() - start
+    elapsed = time.perf_counter_ns() - start
 
     print(
         f'SQLAlchemy. Test 1. Single create. {COUNT} entities\n'
-        f'elapsed_sec={elapsed:.4f};'
+        f'elapsed_ns={elapsed:.0f};'
     )
 
 

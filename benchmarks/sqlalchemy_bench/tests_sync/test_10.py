@@ -16,7 +16,7 @@ def main() -> None:
     date_from = now - timedelta(days=30)
     amount_low = Decimal('50.00')
     amount_high = Decimal('500.00')
-    start = time.time()
+    start = time.perf_counter_ns()
 
     try:
         with SessionLocal() as session:
@@ -35,11 +35,11 @@ def main() -> None:
     except Exception:
         pass
 
-    elapsed = time.time() - start
+    elapsed = time.perf_counter_ns() - start
 
     print(
         f'SQLAlchemy. Test 10. Filter, paginate & sort\n'
-        f'elapsed_sec={elapsed:.4f};'
+        f'elapsed_ns={elapsed:.0f};'
     )
 
 

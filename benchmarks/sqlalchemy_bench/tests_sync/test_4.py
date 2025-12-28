@@ -32,39 +32,38 @@ def get_curr_date():
 
 
 def main() -> None:
-    start = time.time()
+    start = time.perf_counter_ns()
+    session = SessionLocal()
+    for i in range(COUNT):
+        try:
 
-    try:
-        with SessionLocal() as session:
-            for i in range(COUNT):
+            with session.begin():
                 booking = Booking(
                     book_ref=generate_book_ref(i),
                     book_date=get_curr_date(),
                     total_amount=generate_amount(i),
                 )
+                session.add(booking)
+                session.flush()
 
                 ticket = Ticket(
                     ticket_no=generate_ticket_no(i),
+                    booking=booking,
                     passenger_id=generate_passenger_id(i),
                     passenger_name="Test",
                     outbound=True,
                 )
-
-                # связь как у PonyORM
-                ticket.book_ref = booking
-
-                session.add(booking)
                 session.add(ticket)
+                session.flush()
 
-            session.commit()
-    except Exception:
-        pass
+        except Exception:
+            pass
 
-    elapsed = time.time() - start
+    elapsed = time.perf_counter_ns() - start
 
     print(
         f'SQLAlchemy. Test 4. Nested create. {COUNT} entities\n'
-        f'elapsed_sec={elapsed:.4f};'
+        f'elapsed_ns={elapsed:.0f};'
     )
 
 

@@ -6,19 +6,19 @@ from core.models import Booking
 
 
 def main() -> None:
-    start = time.time()
+    start = time.perf_counter_ns()
 
     try:
         with SessionLocal() as session:
-            _ = session.execute(select(Booking)).scalars().all()
+            _ = session.scalars(select(Booking)).all()
     except Exception:
         pass
 
-    elapsed = time.time() - start
+    elapsed = time.perf_counter_ns() - start
 
     print(
         f'SQLAlchemy. Test 5. Find all\n'
-        f'elapsed_sec={elapsed:.4f};'
+        f'elapsed_ns={elapsed:.0f};'
     )
 
 

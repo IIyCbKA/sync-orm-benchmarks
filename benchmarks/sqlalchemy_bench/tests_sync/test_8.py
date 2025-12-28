@@ -10,20 +10,21 @@ def generate_book_ref(i: int) -> str:
 
 
 def main() -> None:
-    start = time.time()
+    start = time.perf_counter_ns()
 
     try:
         with SessionLocal() as session:
-            stmt = select(Booking).where(Booking.book_ref == generate_book_ref(1))
-            result = session.scalars(stmt).one_or_none()
-    except Exception:
-        pass
+            _ = session.scalars(
+                select(Booking).where(Booking.book_ref == generate_book_ref(1)).limit(1)
+            ).first()
+    except Exception as e:
+        print(e)
 
-    elapsed = time.time() - start
+    elapsed = time.perf_counter_ns() - start
 
     print(
         f'SQLAlchemy. Test 8. Find unique\n'
-        f'elapsed_sec={elapsed:.4f};'
+        f'elapsed_ns={elapsed:.0f};'
     )
 
 

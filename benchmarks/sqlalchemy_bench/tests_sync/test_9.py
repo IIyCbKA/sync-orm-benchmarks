@@ -1,8 +1,8 @@
 import time
 from sqlalchemy import select
-
+from sqlalchemy.orm import joinedload
 from tests_sync.db import SessionLocal
-from core.models import Booking
+from core.models import Booking, Ticket
 
 
 def generate_book_ref(i: int) -> str:
@@ -10,23 +10,23 @@ def generate_book_ref(i: int) -> str:
 
 
 def main() -> None:
-    start = time.time()
+    start = time.perf_counter_ns()
 
     try:
         with SessionLocal() as session:
-            stmt = select(Booking).where(Booking.book_ref == generate_book_ref(1))
-            book = session.scalars(stmt).one_or_none()
-
-            if book:
-                _ = len(book.tickets)
+            _ = session.scalars(
+                select(Ticket)
+                .options(joinedload(Ticket.booking))
+                .where(Ticket.book_ref == generate_book_ref(1))
+            ).all()
     except Exception:
         pass
 
-    elapsed = time.time() - start
+    elapsed = time.perf_counter_ns() - start
 
     print(
         f'SQLAlchemy. Test 9. Nested find unique\n'
-        f'elapsed_sec={elapsed:.4f};'
+        f'elapsed_ns={elapsed:.0f};'
     )
 
 

@@ -3,7 +3,7 @@ from decimal import Decimal
 from functools import lru_cache
 import os
 import time
-
+from sqlalchemy import select
 from tests_sync.db import SessionLocal
 from core.models import Booking
 
@@ -24,27 +24,30 @@ def get_curr_date():
 
 
 def main() -> None:
-    start = time.time()
+    start = time.perf_counter_ns()
 
     try:
-        with SessionLocal() as session:
+        session = SessionLocal()
+        with session.begin():
             for i in range(COUNT):
                 booking = session.scalars(
-                    Booking.__table__.select().where(Booking.book_ref == generate_book_ref(i))
+                    select(Booking)
+                    .where(Booking.book_ref == generate_book_ref(i))
+                    .limit(1)
                 ).first()
 
                 if booking:
                     booking.total_amount = get_new_amount(i)
                     booking.book_date = get_curr_date()
-            session.commit()
+                    session.flush()
     except Exception:
         pass
 
-    elapsed = time.time() - start
+    elapsed = time.perf_counter_ns() - start
 
     print(
         f'SQLAlchemy. Test 11. Batch update. {COUNT} entries\n'
-        f'elapsed_sec={elapsed:.4f};'
+        f'elapsed_ns={elapsed:.0f};'
     )
 
 
