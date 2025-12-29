@@ -1,12 +1,15 @@
 from datetime import datetime
 from decimal import Decimal
 from dotenv import load_dotenv
-from pony.orm import composite_key, Database, PrimaryKey, Required, Set
+from pony.orm import composite_key, Database, PrimaryKey, Required, Set, sql_debug
 import os
 
 load_dotenv()
 
 db = Database()
+
+DEBUG = False
+sql_debug(DEBUG)
 
 class Booking(db.Entity):
   _table_ = 'bookings'
