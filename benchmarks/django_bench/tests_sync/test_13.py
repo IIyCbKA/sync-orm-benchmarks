@@ -12,7 +12,7 @@ COUNT = int(os.environ.get('ITERATIONS', '2500'))
 
 
 def generate_book_ref(i: int) -> str:
-  return f'a{i:05d}'
+  return f'd{i:05d}'
 
 
 def main() -> None:

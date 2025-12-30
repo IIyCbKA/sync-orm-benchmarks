@@ -9,7 +9,7 @@ def generate_book_ref(i: int) -> str:
 def main() -> None:
   start = time.perf_counter_ns()
 
-  with db_session():
+  with db_session:
     try:
       _ = Booking.select(
         lambda b: b.book_ref == generate_book_ref(1)

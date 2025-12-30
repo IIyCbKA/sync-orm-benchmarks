@@ -5,9 +5,19 @@ import time
 def main() -> None:
   start = time.perf_counter_ns()
 
-  with db_session():
+  with db_session:
     try:
-      _ = select((t, t.book_ref) for t in Ticket).order_by(Ticket.ticket_no).first()
+      # order by first row - t.ticket_no
+      _ = select((
+        t.ticket_no,
+        t.book_ref,
+        t.passenger_id,
+        t.passenger_name,
+        t.outbound,
+        b.book_ref,
+        b.book_date,
+        b.total_amount
+      ) for t in Ticket for b in t.book_ref).order_by(1).first()
     except Exception:
       pass
 

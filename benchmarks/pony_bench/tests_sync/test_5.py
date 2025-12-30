@@ -5,7 +5,7 @@ import time
 def main() -> None:
   start = time.perf_counter_ns()
 
-  with db_session():
+  with db_session:
     try:
         _ = Booking.select()[:]
     except Exception:

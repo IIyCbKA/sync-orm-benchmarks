@@ -8,7 +8,7 @@ COUNT = int(os.environ.get('ITERATIONS', '2500'))
 
 
 def generate_book_ref(i: int) -> str:
-  return f'a{i:05d}'
+  return f'd{i:05d}'
 
 
 def main() -> None:
@@ -17,7 +17,7 @@ def main() -> None:
   try:
     refs = [generate_book_ref(i) for i in range(COUNT)]
 
-    with db_session():
+    with db_session:
       bookings = list(select(
         b for b in Booking if b.book_ref in refs).prefetch(Booking.tickets))
 

@@ -13,7 +13,7 @@ def generate_book_ref(i: int) -> str:
 def main() -> None:
   start = time.perf_counter_ns()
 
-  with db_session():
+  with db_session:
     try:
       for i in range(COUNT):
         booking = Booking.select(

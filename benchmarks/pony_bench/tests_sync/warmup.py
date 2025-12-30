@@ -43,7 +43,7 @@ def warm_up() -> None:
       except Exception:
         pass
 
-  print('Warm-uo done')
+  print('Warm-up done')
 
 
 if __name__ == '__main__':

@@ -8,7 +8,7 @@ load_dotenv()
 
 db = Database()
 
-DEBUG = False
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 sql_debug(DEBUG)
 
 class Booking(db.Entity):

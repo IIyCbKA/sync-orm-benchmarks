@@ -16,13 +16,13 @@ def main() -> None:
   amount_high = Decimal('500.00')
   start = time.perf_counter_ns()
 
-  with db_session():
+  with db_session:
     try:
-      _ = Booking.select(lambda b:
-        amount_low <= b.total_amount <= amount_high
+      _ = list(Booking.select(lambda b:
+        b.total_amount >= amount_low
+        and b.total_amount <= amount_high
         and b.book_date >= date_from
-      ).order_by(Booking.total_amount
-      ).limit(LIMIT, offset=OFFSET)[:]
+      ).order_by(lambda b: b.total_amount)[OFFSET : OFFSET + LIMIT])
     except Exception:
       pass
 
