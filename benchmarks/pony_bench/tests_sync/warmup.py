@@ -9,9 +9,9 @@ COUNT = int(os.environ.get('WARMUP_ITERATIONS', '20'))
 
 
 def warm_up() -> None:
-  with db_session:
-    for i in range(COUNT):
-      try:
+  try:
+    with db_session:
+      for i in range(COUNT):
         b = Booking(
           book_ref=f'warm{i:02d}',
           book_date=datetime.now(UTC),
@@ -41,9 +41,9 @@ def warm_up() -> None:
         flush()
         t.delete()
         commit()
-      except Exception as e:
-        print(f'[ERROR] Warm-up failed: {e}')
-        sys.exit(1)
+  except Exception as e:
+    print(f'[ERROR] Warm-up failed: {e}')
+    sys.exit(1)
 
   print('Warm-up done')
 

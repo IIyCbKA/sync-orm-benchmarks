@@ -13,8 +13,8 @@ COUNT = int(os.environ.get('WARMUP_ITERATIONS', '20'))
 
 
 def warm_up() -> None:
-  for i in range(COUNT):
-    try:
+  try:
+    for i in range(COUNT):
       with transaction.atomic():
         b = Booking(
           book_ref=f'warm{i:02d}',
@@ -43,9 +43,9 @@ def warm_up() -> None:
 
         b.delete()
         t.delete()
-    except Exception as e:
-      print(f'[ERROR] Warm-up failed: {e}')
-      sys.exit(1)
+  except Exception as e:
+    print(f'[ERROR] Warm-up failed: {e}')
+    sys.exit(1)
 
   print('Warm-up done')
 

@@ -1,4 +1,4 @@
-from pony.orm import db_session, commit
+from pony.orm import db_session, commit, select
 from core.models import Booking
 import os
 import sys
@@ -14,18 +14,14 @@ def generate_book_ref(i: int) -> str:
 def main() -> None:
   start = time.perf_counter_ns()
 
-  with db_session:
-    for i in range(COUNT):
-      try:
-        booking = Booking.select(
-          lambda b: b.book_ref == generate_book_ref(i)).order_by(
-          Booking.book_ref).first()
-        if booking:
-          booking.delete()
-          commit()
-      except Exception as e:
-        print(f'[ERROR] Test 15 failed: {e}')
-        sys.exit(1)
+  try:
+    with db_session:
+      for i in range(COUNT):
+        select(b for b in Booking if b.book_ref == generate_book_ref(i)).delete(bulk=True)
+        commit()
+  except Exception as e:
+    print(f'[ERROR] Test 15 failed: {e}')
+    sys.exit(1)
 
   end = time.perf_counter_ns()
   elapsed = end - start

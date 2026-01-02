@@ -21,9 +21,7 @@ def generate_book_ref(i: int) -> str:
 def delete_booking_sync() -> None:
   with transaction.atomic():
     for i in range(COUNT):
-      booking = Booking.objects.filter(book_ref=generate_book_ref(i)).first()
-      if booking:
-        booking.delete()
+      Booking.objects.filter(book_ref=generate_book_ref(i)).delete()
 
 
 async def main() -> None:

@@ -6,12 +6,12 @@ import time
 def main() -> None:
   start = time.perf_counter_ns()
 
-  with db_session:
-    try:
+  try:
+    with db_session:
       _ = list(Booking.select())
-    except Exception as e:
-      print(f'[ERROR] Test 5 failed: {e}')
-      sys.exit(1)
+  except Exception as e:
+    print(f'[ERROR] Test 5 failed: {e}')
+    sys.exit(1)
 
   end = time.perf_counter_ns()
   elapsed = end - start

@@ -30,11 +30,10 @@ def get_curr_date():
 
 async def update_booking(i: int) -> None:
   try:
-    booking = await Booking.objects.filter(book_ref=generate_book_ref(i)).afirst()
-    if booking:
-      booking.total_amount = get_new_amount(i)
-      booking.book_date = get_curr_date()
-      await booking.asave(update_fields=['total_amount', 'book_date'])
+    await Booking.objects.filter(book_ref=generate_book_ref(i)).aupdate(
+      total_amount=get_new_amount(i),
+      book_date=get_curr_date()
+    )
   except Exception as e:
     print(f'[ERROR] Test 12 failed: {e}')
     sys.exit(1)

@@ -10,8 +10,8 @@ def generate_book_ref(i: int) -> str:
 def main() -> None:
   start = time.perf_counter_ns()
 
-  with db_session:
-    try:
+  try:
+    with db_session:
       _ = list(
         select((
         t.ticket_no,
@@ -24,9 +24,9 @@ def main() -> None:
         b.total_amount
         ) for t in Ticket for b in t.book_ref if b.book_ref == generate_book_ref(1))
       )
-    except Exception as e:
-      print(f'[ERROR] Test 9 failed: {e}')
-      sys.exit(1)
+  except Exception as e:
+    print(f'[ERROR] Test 9 failed: {e}')
+    sys.exit(1)
 
   end = time.perf_counter_ns()
   elapsed = end - start

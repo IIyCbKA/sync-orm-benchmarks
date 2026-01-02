@@ -30,16 +30,15 @@ def get_curr_date():
 def main() -> None:
   start = time.perf_counter_ns()
 
-  for i in range(COUNT):
-    try:
-      booking = Booking.objects.filter(book_ref=generate_book_ref(i)).first()
-      if booking:
-        booking.total_amount = get_new_amount(i)
-        booking.book_date = get_curr_date()
-        booking.save(update_fields=['total_amount', 'book_date'])
-    except Exception as e:
-      print(f'[ERROR] Test 12 failed: {e}')
-      sys.exit(1)
+  try:
+    for i in range(COUNT):
+      Booking.objects.filter(book_ref=generate_book_ref(i)).update(
+        total_amount=get_new_amount(i),
+        book_date=get_curr_date()
+      )
+  except Exception as e:
+    print(f'[ERROR] Test 12 failed: {e}')
+    sys.exit(1)
 
   end = time.perf_counter_ns()
   elapsed = end - start

@@ -21,9 +21,7 @@ def main() -> None:
   try:
     with transaction.atomic():
       for i in range(COUNT):
-        booking = Booking.objects.filter(book_ref=generate_book_ref(i)).first()
-        if booking:
-          booking.delete()
+        Booking.objects.filter(book_ref=generate_book_ref(i)).delete()
   except Exception as e:
     print(f'[ERROR] Test 14 failed: {e}')
     sys.exit(1)

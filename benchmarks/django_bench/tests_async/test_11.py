@@ -34,11 +34,10 @@ def get_curr_date():
 def update_booking_sync() -> None:
   with transaction.atomic():
     for i in range(COUNT):
-      booking = Booking.objects.filter(book_ref=generate_book_ref(i)).first()
-      if booking:
-        booking.total_amount = get_new_amount(i)
-        booking.book_date = get_curr_date()
-        booking.save(update_fields=['total_amount', 'book_date'])
+      Booking.objects.filter(book_ref=generate_book_ref(i)).update(
+        total_amount=get_new_amount(i),
+        book_date=get_curr_date()
+      )
 
 
 async def main() -> None:

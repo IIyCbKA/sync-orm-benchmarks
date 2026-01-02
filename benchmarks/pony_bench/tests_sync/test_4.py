@@ -35,15 +35,14 @@ def get_curr_date():
 def main() -> None:
   start = time.perf_counter_ns()
 
-  with db_session:
-    for i in range(COUNT):
-      try:
+  try:
+    with db_session:
+      for i in range(COUNT):
         booking = Booking(
           book_ref=generate_book_ref(i),
           book_date=get_curr_date(),
           total_amount=generate_amount(i)
         )
-
         flush()
 
         _ = Ticket(
@@ -53,11 +52,10 @@ def main() -> None:
           passenger_name='Test',
           outbound=True
         )
-
         commit()
-      except Exception as e:
-        print(f'[ERROR] Test 4 failed: {e}')
-        sys.exit(1)
+  except Exception as e:
+    print(f'[ERROR] Test 4 failed: {e}')
+    sys.exit(1)
 
   end = time.perf_counter_ns()
   elapsed = end - start

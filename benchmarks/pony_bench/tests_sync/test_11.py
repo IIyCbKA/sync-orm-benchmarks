@@ -1,7 +1,7 @@
 from datetime import datetime, UTC
 from decimal import Decimal
 from functools import lru_cache
-from pony.orm import db_session, flush
+from pony.orm import db_session, select
 from core.models import Booking
 import os
 import sys
@@ -27,19 +27,16 @@ def get_curr_date():
 def main() -> None:
   start = time.perf_counter_ns()
 
-  with db_session:
-    try:
+  try:
+    with db_session:
       for i in range(COUNT):
-        booking = Booking.select(
-          lambda b: b.book_ref == generate_book_ref(i)).order_by(
-          Booking.book_ref).first()
-        if booking:
-          booking.total_amount = get_new_amount(i)
-          booking.book_date = get_curr_date()
-          flush()
-    except Exception as e:
-      print(f'[ERROR] Test 11 failed: {e}')
-      sys.exit(1)
+        select(b for b in Booking if b.book_ref == generate_book_ref(i)).update(
+          total_amount=get_new_amount(i),
+          book_date=get_curr_date(),
+        )
+  except Exception as e:
+    print(f'[ERROR] Test 11 failed: {e}')
+    sys.exit(1)
 
   end = time.perf_counter_ns()
   elapsed = end - start

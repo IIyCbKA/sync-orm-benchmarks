@@ -30,16 +30,16 @@ def get_curr_date():
 def main() -> None:
   start = time.perf_counter_ns()
 
-  for i in range(COUNT):
-    try:
+  try:
+    for i in range(COUNT):
       Booking.objects.create(
         book_ref=generate_book_ref(i),
         book_date=get_curr_date(),
         total_amount=generate_amount(i),
       )
-    except Exception as e:
-      print(f'[ERROR] Test 1 failed: {e}')
-      sys.exit(1)
+  except Exception as e:
+    print(f'[ERROR] Test 1 failed: {e}')
+    sys.exit(1)
 
   end = time.perf_counter_ns()
   elapsed = end - start

@@ -6,8 +6,8 @@ import time
 def main() -> None:
   start = time.perf_counter_ns()
 
-  with db_session:
-    try:
+  try:
+    with db_session:
       # order by first row - t.ticket_no
       _ = select((
         t.ticket_no,
@@ -19,9 +19,9 @@ def main() -> None:
         b.book_date,
         b.total_amount
       ) for t in Ticket for b in t.book_ref).order_by(1).first()
-    except Exception as e:
-      print(f'[ERROR] Test 7 failed: {e}')
-      sys.exit(1)
+  except Exception as e:
+    print(f'[ERROR] Test 7 failed: {e}')
+    sys.exit(1)
 
   end = time.perf_counter_ns()
   elapsed = end - start
