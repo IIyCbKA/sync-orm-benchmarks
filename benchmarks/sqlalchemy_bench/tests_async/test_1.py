@@ -1,10 +1,12 @@
+import asyncio
 from datetime import datetime, UTC
 from decimal import Decimal
-from tests_async.db import AsyncSessionLocal
-from core.models import Booking
+from functools import lru_cache
 import os
 import time
-import asyncio
+
+from tests_async.db import AsyncSessionLocal
+from core.models import Booking
 
 COUNT = int(os.environ.get('ITERATIONS', '2500'))
 
@@ -14,33 +16,49 @@ def generate_book_ref(i: int) -> str:
 
 
 def generate_amount(i: int) -> Decimal:
-    value = i + 500
-    return Decimal(value) / Decimal('10.00')
+    return Decimal(i + 500) / Decimal('10.00')
 
 
-async def main() -> None:
-    start = time.time()
+@lru_cache(1)
+def get_curr_date():
+    return datetime.now(UTC)
 
-    for i in range(COUNT):
+
+async def create_booking(i: int) -> None:
+    try:
         async with AsyncSessionLocal() as session:
-            try:
-                item = Booking(
+            async with session.begin():
+                booking = Booking(
                     book_ref=generate_book_ref(i),
-                    book_date=datetime.now(UTC),
+                    book_date=get_curr_date(),
                     total_amount=generate_amount(i),
                 )
-                session.add(item)
-                await session.commit()
-            except Exception:
-                pass
+                session.add(booking)
+                await session.flush()
+    except Exception as e:
+        print(e)
 
-    elapsed = time.time() - start
+
+sem = asyncio.Semaphore(30)
+
+async def sem_task(task):
+    async with sem:
+        return await task
+
+async def main() -> None:
+    start = time.perf_counter_ns()
+
+    tasks = [sem_task(create_booking(i)) for i in range(COUNT)]
+    await asyncio.gather(*tasks)
+
+    end = time.perf_counter_ns()
+    elapsed = end - start
 
     print(
-        f'SQLAlchemy Async. Test 1. Insert\n'
-        f'elapsed_sec={elapsed:.4f};'
+        f"SQLAlchemy (async). Test 1. Single create. {COUNT} entities\n"
+        f"elapsed_ns={elapsed:.0f};"
     )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     asyncio.run(main())

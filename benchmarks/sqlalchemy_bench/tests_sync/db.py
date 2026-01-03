@@ -13,7 +13,10 @@ DB_PORT = os.getenv("POSTGRES_PORT")
 
 DATABASE_URL = f"postgresql+psycopg://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
-engine = create_engine(DATABASE_URL, echo=False, future=True)
+
+DEBUG = "debug" if os.getenv("DEBUG") == "True" else False
+
+engine = create_engine(DATABASE_URL, echo=DEBUG, future=True)
 
 SessionLocal = sessionmaker(bind=engine, autoflush=False, future=True)
 

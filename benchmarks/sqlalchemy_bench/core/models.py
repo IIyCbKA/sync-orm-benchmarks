@@ -15,6 +15,7 @@ class Booking(Base):
     book_date: Mapped[str] = mapped_column(TIMESTAMP(timezone=True), nullable=False)
     total_amount: Mapped[Decimal] = mapped_column(Numeric, nullable=False)
 
+
     __table_args__ = (
         Index("idx_book_ref", "book_ref"),
     )
