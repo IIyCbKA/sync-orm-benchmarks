@@ -11,12 +11,11 @@ def generate_book_ref(i: int) -> str:
 
 def main() -> None:
     start = time.perf_counter_ns()
-
+    session = SessionLocal()
     try:
-        with SessionLocal() as session:
-            _ = session.scalars(
-                select(Booking).where(Booking.book_ref == generate_book_ref(1)).order_by(Booking.book_ref).limit(1)
-            ).first()
+        _ = session.scalars(
+            select(Booking).where(Booking.book_ref == generate_book_ref(1)).order_by(Booking.book_ref).limit(1)
+        ).first()
     except Exception as e:
         print(e)
 

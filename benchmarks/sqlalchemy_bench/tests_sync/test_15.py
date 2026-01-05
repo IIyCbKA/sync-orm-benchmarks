@@ -26,7 +26,7 @@ def main() -> None:
 
             if booking:
                 session.delete(booking)
-                session.flush()
+                session.commit()
     except Exception as e:
         print(e)
 

@@ -3,6 +3,7 @@ from decimal import Decimal
 import os
 import time
 from sqlalchemy import select, asc
+from sqlalchemy.sql.functions import session_user
 
 from tests_sync.db import SessionLocal
 from core.models import Booking
@@ -17,21 +18,20 @@ def main() -> None:
     amount_low = Decimal('50.00')
     amount_high = Decimal('500.00')
     start = time.perf_counter_ns()
-
+    session = SessionLocal()
     try:
-        with SessionLocal() as session:
-            stmt = (
-                select(Booking)
-                .where(
-                    Booking.total_amount.between(amount_low, amount_high),
-                    Booking.book_date >= date_from
-                )
-                .order_by(asc(Booking.total_amount))
-                .limit(LIMIT)
-                .offset(OFFSET)
+        stmt = (
+            select(Booking)
+            .where(
+                Booking.total_amount.between(amount_low, amount_high),
+                Booking.book_date >= date_from
             )
+            .order_by(asc(Booking.total_amount))
+            .limit(LIMIT)
+            .offset(OFFSET)
+        )
 
-            results = session.scalars(stmt).all()
+        results = session.scalars(stmt).all()
     except Exception as e:
         print(e)
 

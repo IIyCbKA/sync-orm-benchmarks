@@ -37,7 +37,7 @@ def main() -> None:
                 if booking:
                     booking.total_amount = get_new_amount(i)
                     booking.book_date = get_curr_date()
-                    session.flush()
+                    session.commit()
     except Exception as e:
         print(e)
 

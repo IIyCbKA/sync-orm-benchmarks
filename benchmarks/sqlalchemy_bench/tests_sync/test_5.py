@@ -7,10 +7,9 @@ from core.models import Booking
 
 def main() -> None:
     start = time.perf_counter_ns()
-
+    session = SessionLocal()
     try:
-        with SessionLocal() as session:
-            _ = session.scalars(select(Booking)).all()
+        _ = session.scalars(select(Booking)).all()
     except Exception as e:
         print(e)
 

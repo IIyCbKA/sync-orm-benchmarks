@@ -37,8 +37,7 @@ def main() -> None:
 
     session = SessionLocal()
     try:
-        with session.begin():
-            session.bulk_save_objects(objs)
+        session.bulk_save_objects(objs)
     except Exception as e:
         print(e)
 

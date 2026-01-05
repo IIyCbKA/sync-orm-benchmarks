@@ -8,27 +8,24 @@ from core.models import Booking, Ticket
 def main() -> None:
     start = time.perf_counter_ns()
 
+    session = SessionLocal()
     try:
-        with SessionLocal() as session:
-            stmt = (
-                select(
-                    Ticket.ticket_no,
-                    Ticket.book_ref,
-                    Ticket.passenger_id,
-                    Ticket.passenger_name,
-                    Ticket.outbound,
-                    Booking.book_ref,
-                    Booking.book_date,
-                    Booking.total_amount,
-                )
-                .join(Booking, Ticket.book_ref == Booking.book_ref)
-                .order_by(Ticket.ticket_no)
-                .limit(1)
+        stmt = (
+            select(
+                Ticket.ticket_no,
+                Ticket.book_ref,
+                Ticket.passenger_id,
+                Ticket.passenger_name,
+                Ticket.outbound,
+                Booking.book_ref,
+                Booking.book_date,
+                Booking.total_amount,
             )
-            ticket = session.execute(stmt).first()
-
-            if ticket:
-                book_ref_value = ticket.book_ref
+            .join(Booking, Ticket.book_ref == Booking.book_ref)
+            .order_by(Ticket.ticket_no)
+            .limit(1)
+        )
+        ticket = session.execute(stmt).first()
 
     except Exception as e:
         print(e)

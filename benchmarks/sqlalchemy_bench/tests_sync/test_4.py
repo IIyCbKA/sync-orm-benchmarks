@@ -35,8 +35,8 @@ def main() -> None:
     start = time.perf_counter_ns()
     session = SessionLocal()
     try:
-        for i in range(COUNT):
-            with session.begin():
+        with session.begin():
+            for i in range(COUNT):
                 booking = Booking(
                     book_ref=generate_book_ref(i),
                     book_date=get_curr_date(),

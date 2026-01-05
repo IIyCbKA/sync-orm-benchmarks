@@ -25,9 +25,8 @@ def get_curr_date():
 
 def main() -> None:
     start = time.perf_counter_ns()
-
+    session = SessionLocal()
     try:
-        session = SessionLocal()
         with session.begin():
             for i in range(COUNT):
                 item = Booking(
@@ -36,8 +35,7 @@ def main() -> None:
                     total_amount=generate_amount(i),
                 )
                 session.add(item)
-
-            session.commit()
+                session.flush()
     except Exception as e:
         print(e)
 

@@ -7,9 +7,9 @@ from core.models import Booking
 def main() -> None:
     start = time.perf_counter_ns()
 
+    session = SessionLocal()
     try:
-        with SessionLocal() as session:
-            _ = session.scalars(
+        _ = session.scalars(
                 select(Booking).order_by(asc(Booking.book_ref)).limit(1)
             ).first()
     except Exception as e:
