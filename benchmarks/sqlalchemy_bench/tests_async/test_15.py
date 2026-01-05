@@ -16,11 +16,11 @@ def generate_book_ref(i: int) -> str:
 async def delete_booking(i: int):
     async with AsyncSessionLocal() as session:
         try:
-            stmt_select = select(Booking).where(Booking.book_ref == generate_book_ref(i)).limit(1)
-            booking = await session.scalar(stmt_select)
+            statement = select(Booking).where(Booking.book_ref == generate_book_ref(i)).limit(1)
+            result = await session.scalars(statement)
+            booking = result.first()
             if booking:
-                stmt_delete = delete(Booking).where(Booking.book_ref == booking.book_ref)
-                await session.execute(stmt_delete)
+                await session.delete(booking)
                 await session.commit()
         except Exception as e:
             print(e)

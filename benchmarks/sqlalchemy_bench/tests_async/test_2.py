@@ -34,7 +34,7 @@ async def batch_create_async() -> None:
                     total_amount=generate_amount(i),
                 )
                 session.add(booking)
-            await session.flush()
+                await session.flush()
 
 async def main() -> None:
     start = time.perf_counter_ns()

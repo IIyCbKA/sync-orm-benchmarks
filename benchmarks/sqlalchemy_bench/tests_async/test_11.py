@@ -6,7 +6,7 @@ from functools import lru_cache
 from tests_async.db import AsyncSessionLocal
 from core.models import Booking
 import os
-from sqlalchemy import update
+from sqlalchemy import update, select
 
 COUNT = int(os.environ.get('ITERATIONS', '2500'))
 
@@ -28,15 +28,14 @@ async def update_booking_async():
     async with AsyncSessionLocal() as session:
         async with session.begin():
             for i in range(COUNT):
-                stmt = (
-                    update(Booking)
-                    .where(Booking.book_ref == generate_book_ref(i))
-                    .values(
-                        total_amount=get_new_amount(i),
-                        book_date=get_curr_date()
-                    )
-                )
-                await session.execute(stmt)
+                statement = select(Booking).where(Booking.book_ref == generate_book_ref(i)).order_by(
+                    Booking.book_ref).limit(1)
+                result = await session.execute(statement)
+                booking = result.scalars().first()
+                if booking:
+                    booking.total_amount = get_new_amount(i)
+                    booking.book_date = get_curr_date()
+                    await session.flush()
 
 
 async def main() -> None:

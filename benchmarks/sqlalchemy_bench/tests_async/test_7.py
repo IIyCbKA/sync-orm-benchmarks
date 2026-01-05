@@ -11,11 +11,23 @@ async def main() -> None:
 
     try:
         async with AsyncSessionLocal() as session:
-            stmt = select(Ticket).limit(1)
-            ticket = await session.scalar(stmt)
-
-            if ticket:
-                book_ref_value = ticket.book_ref
+            stmt = (
+                select(
+                    Ticket.ticket_no,
+                    Ticket.book_ref,
+                    Ticket.passenger_id,
+                    Ticket.passenger_name,
+                    Ticket.outbound,
+                    Booking.book_ref,
+                    Booking.book_date,
+                    Booking.total_amount,
+                )
+                .join(Booking, Ticket.book_ref == Booking.book_ref)
+                .order_by(Ticket.ticket_no)
+                .limit(1)
+            )
+            result = await session.execute(stmt)
+            ticket = result.first()
 
     except Exception as e:
         print(e)

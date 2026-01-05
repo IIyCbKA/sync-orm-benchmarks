@@ -11,7 +11,7 @@ async def main() -> None:
         async with AsyncSessionLocal() as session:
             stmt = select(Booking)
             result = await session.scalars(stmt)
-            bookings = [b for b in result]
+            bookings = result.all()
     except Exception as e:
         print(e)
 

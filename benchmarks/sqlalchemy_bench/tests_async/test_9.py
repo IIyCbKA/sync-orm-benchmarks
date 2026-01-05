@@ -14,9 +14,22 @@ async def main() -> None:
 
     try:
         async with AsyncSessionLocal() as session:
-            stmt = select(Ticket).where(Ticket.book_ref == generate_book_ref(1))
+            stmt = (
+                select(
+                    Ticket.ticket_no,
+                    Ticket.book_ref,
+                    Ticket.passenger_id,
+                    Ticket.passenger_name,
+                    Ticket.outbound,
+                    Booking.book_ref,
+                    Booking.book_date,
+                    Booking.total_amount,
+                )
+                .join(Booking, Ticket.book_ref == Booking.book_ref)
+                .where(Ticket.book_ref == generate_book_ref(1))
+            )
             result = await session.scalars(stmt)
-            tickets = [t for t in result]
+            tickets = result.all()
     except Exception as e:
         print(e)
 

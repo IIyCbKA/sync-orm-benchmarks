@@ -27,18 +27,12 @@ def get_curr_date():
 async def update_booking(i: int):
     async with AsyncSessionLocal() as session:
         try:
-            stmt_select = select(Booking).where(Booking.book_ref == generate_book_ref(i)).limit(1)
-            booking = await session.scalar(stmt_select)
+            statement = select(Booking).where(Booking.book_ref == generate_book_ref(i)).order_by(Booking.book_ref).limit(1)
+            result = await session.scalars(statement)
+            booking = result.first()
             if booking:
-                stmt_update = (
-                    update(Booking)
-                    .where(Booking.book_ref == booking.book_ref)
-                    .values(
-                        total_amount=get_new_amount(i),
-                        book_date=get_curr_date()
-                    )
-                )
-                await session.execute(stmt_update)
+                booking.total_amount = get_new_amount(i)
+                booking.book_date = get_curr_date()
                 await session.commit()
         except Exception as e:
             print(e)

@@ -27,14 +27,13 @@ def get_curr_date():
 async def create_booking(i: int) -> None:
     try:
         async with AsyncSessionLocal() as session:
-            async with session.begin():
-                booking = Booking(
-                    book_ref=generate_book_ref(i),
-                    book_date=get_curr_date(),
-                    total_amount=generate_amount(i),
-                )
-                session.add(booking)
-                await session.flush()
+            booking = Booking(
+                book_ref=generate_book_ref(i),
+                book_date=get_curr_date(),
+                total_amount=generate_amount(i),
+            )
+            session.add(booking)
+            await session.commit()
     except Exception as e:
         print(e)
 

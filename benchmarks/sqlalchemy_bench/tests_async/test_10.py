@@ -32,7 +32,7 @@ async def main() -> None:
                 .limit(LIMIT)
             )
             result = await session.scalars(stmt)
-            bookings = [b for b in result]
+            bookings = result.all()
 
     except Exception as e:
         print(e)
