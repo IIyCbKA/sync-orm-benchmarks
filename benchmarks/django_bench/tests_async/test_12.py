@@ -18,9 +18,8 @@ def generate_book_ref(i: int) -> str:
   return f'a{i:05d}'
 
 
-def get_new_amount(i: int) -> Decimal:
-  value = i + 100
-  return Decimal(value) / Decimal('10.00')
+def get_new_amount(value: Decimal) -> Decimal:
+  return value / Decimal('10.00')
 
 
 @lru_cache(1)
@@ -28,22 +27,28 @@ def get_curr_date():
   return timezone.now()
 
 
-async def update_booking(i: int) -> None:
-  try:
-    await Booking.objects.filter(book_ref=generate_book_ref(i)).aupdate(
-      total_amount=get_new_amount(i),
-      book_date=get_curr_date()
-    )
-  except Exception as e:
-    print(f'[ERROR] Test 12 failed: {e}')
-    sys.exit(1)
+async def update_booking(booking: Booking) -> None:
+  booking.total_amount = get_new_amount(booking.total_amount)
+  booking.book_date = get_curr_date()
+  await booking.asave(update_fields=['total_amount', 'book_date'])
 
 
 async def main() -> None:
+  try:
+    refs = [generate_book_ref(i) for i in range(COUNT)]
+    bookings = list(Booking.objects.filter(book_ref__in=refs))
+  except Exception as e:
+    print(f'[ERROR] Test 12 failed (data preparation): {e}')
+    sys.exit(1)
+
   start = time.perf_counter_ns()
 
-  tasks = [update_booking(i) for i in range(COUNT)]
-  await asyncio.gather(*tasks)
+  try:
+    tasks = [update_booking(booking) for booking in bookings]
+    await asyncio.gather(*tasks)
+  except Exception as e:
+    print(f'[ERROR] Test 12 failed (update phase): {e}')
+    sys.exit(1)
 
   end = time.perf_counter_ns()
   elapsed = end - start

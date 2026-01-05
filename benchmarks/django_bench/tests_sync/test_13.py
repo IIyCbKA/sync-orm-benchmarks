@@ -6,9 +6,8 @@ import time
 import django
 django.setup()
 
-from core.models import Booking, Ticket
+from core.models import Booking
 from django.db import transaction
-from django.db.models import F
 
 COUNT = int(os.environ.get('ITERATIONS', '2500'))
 
@@ -18,28 +17,36 @@ def generate_book_ref(i: int) -> str:
 
 
 def main() -> None:
+  try:
+    refs = [generate_book_ref(i) for i in range(COUNT)]
+    bookings = list(
+      Booking.objects
+      .filter(book_ref__in=refs)
+      .prefetch_related('tickets')
+    )
+  except Exception as e:
+    print(f'[ERROR] Test 13 failed (data preparation): {e}')
+    sys.exit(1)
+
   start = time.perf_counter_ns()
 
   try:
     with transaction.atomic():
-      for i in range(COUNT):
-        book_ref = generate_book_ref(i)
-        Booking.objects.filter(book_ref=book_ref).update(
-          total_amount=F('total_amount') + Decimal('10.00')
-        )
-
-        Ticket.objects.filter(book_ref=book_ref).update(
-          passenger_name='Nested update'
-        )
+      for booking in bookings:
+        booking.total_amount += Decimal('10.00')
+        booking.save(update_fields=['total_amount'])
+        for ticket in booking.tickets.all():
+          ticket.passenger_name = 'Nested update'
+          ticket.save(update_fields=['passenger_name'])
   except Exception as e:
-    print(f'[ERROR] Test 13 failed: {e}')
+    print(f'[ERROR] Test 13 failed (update phase): {e}')
     sys.exit(1)
 
   end = time.perf_counter_ns()
   elapsed = end - start
 
   print(
-    f'Django ORM (sync). Test 13. Nested batch update. {COUNT} entries\n'
+    f'Django ORM (sync). Test 13. Nested transaction update. {COUNT} entries\n'
     f'elapsed_ns={elapsed}'
   )
 

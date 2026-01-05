@@ -18,26 +18,33 @@ def generate_book_ref(i: int) -> str:
 
 
 @sync_to_async
-def delete_booking_sync() -> None:
+def delete_booking_sync(bookings: list[Booking]) -> None:
   with transaction.atomic():
-    for i in range(COUNT):
-      Booking.objects.filter(book_ref=generate_book_ref(i)).delete()
+    for booking in bookings:
+      booking.delete()
 
 
 async def main() -> None:
+  try:
+    refs = [generate_book_ref(i) for i in range(COUNT)]
+    bookings = list(Booking.objects.filter(book_ref__in=refs))
+  except Exception as e:
+    print(f'[ERROR] Test 14 failed (data preparation): {e}')
+    sys.exit(1)
+
   start = time.perf_counter_ns()
 
   try:
-    await delete_booking_sync()
+    await delete_booking_sync(bookings)
   except Exception as e:
-    print(f'[ERROR] Test 14 failed: {e}')
+    print(f'[ERROR] Test 14 failed (delete phase): {e}')
     sys.exit(1)
 
   end = time.perf_counter_ns()
   elapsed = end - start
 
   print(
-    f'Django ORM (async). Test 14. Batch delete. {COUNT} entries\n'
+    f'Django ORM (async). Test 14. Transaction delete. {COUNT} entries\n'
     f'elapsed_ns={elapsed}'
   )
 

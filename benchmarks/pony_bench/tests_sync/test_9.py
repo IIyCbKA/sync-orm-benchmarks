@@ -32,7 +32,7 @@ def main() -> None:
   elapsed = end - start
 
   print(
-    f'PonyORM. Test 9. Nested find unique\n'
+    f'PonyORM. Test 9. Nested find\n'
     f'elapsed_ns={elapsed}'
   )
 

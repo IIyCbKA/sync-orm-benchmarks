@@ -26,7 +26,7 @@ async def main() -> None:
   elapsed = end - start
 
   print(
-    f'Django ORM (async). Test 9. Nested find unique\n'
+    f'Django ORM (async). Test 9. Nested find\n'
     f'elapsed_ns={elapsed}'
   )
 

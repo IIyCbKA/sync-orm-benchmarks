@@ -15,19 +15,26 @@ def generate_book_ref(i: int) -> str:
   return f'b{i:05d}'
 
 
-async def delete_booking(i: int) -> None:
-  try:
-    await Booking.objects.filter(book_ref=generate_book_ref(i)).adelete()
-  except Exception as e:
-    print(f'[ERROR] Test 15 failed: {e}')
-    sys.exit(1)
+async def delete_booking(booking: Booking) -> None:
+  await booking.adelete()
 
 
 async def main() -> None:
+  try:
+    refs = [generate_book_ref(i) for i in range(COUNT)]
+    bookings = list(Booking.objects.filter(book_ref__in=refs))
+  except Exception as e:
+    print(f'[ERROR] Test 15 failed (data preparation): {e}')
+    sys.exit(1)
+
   start = time.perf_counter_ns()
 
-  tasks = [delete_booking(i) for i in range(COUNT)]
-  await asyncio.gather(*tasks)
+  try:
+    tasks = [delete_booking(booking) for booking in bookings]
+    await asyncio.gather(*tasks)
+  except Exception as e:
+    print(f'[ERROR] Test 15 failed (delete phase): {e}')
+    sys.exit(1)
 
   end = time.perf_counter_ns()
   elapsed = end - start

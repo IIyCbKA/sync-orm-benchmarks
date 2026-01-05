@@ -12,9 +12,7 @@ def main() -> None:
 
   try:
     with db_session:
-      _ = Booking.select(
-        lambda b: b.book_ref == generate_book_ref(1)
-      ).order_by(Booking.book_ref).first()
+      _ = Booking.get(book_ref=generate_book_ref(1))
   except Exception as e:
     print(f'[ERROR] Test 8 failed: {e}')
     sys.exit(1)
