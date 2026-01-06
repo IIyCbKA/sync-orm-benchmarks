@@ -47,7 +47,7 @@ python -m test_11
 # Test 12 -> Single update
 python -m test_12
 
-# Test 13 -> Nested transaction update
+# Test 13 -> Nested update
 python -m test_13
 
 # Test 14 -> Transaction delete
@@ -55,3 +55,9 @@ python -m test_14
 
 # Test 15 -> Single delete
 python -m test_15
+
+# Test 16 -> Bulk delete
+python -m test_16
+
+# Test 17 -> Nested delete
+python -m test_17

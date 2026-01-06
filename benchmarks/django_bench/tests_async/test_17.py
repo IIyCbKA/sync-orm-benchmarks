@@ -1,4 +1,3 @@
-from decimal import Decimal
 import asyncio
 import os
 import sys
@@ -19,14 +18,11 @@ def generate_book_ref(i: int) -> str:
 
 
 @sync_to_async
-def update_nested_sync(bookings: list[Booking]) -> None:
+def delete_nested_sync(bookings: list[Booking]) -> None:
   for booking in bookings:
     with transaction.atomic():
-      booking.total_amount += Decimal('10.00')
-      booking.save(update_fields=['total_amount'])
-      for ticket in booking.tickets.all():
-        ticket.passenger_name = 'Nested update'
-        ticket.save(update_fields=['passenger_name'])
+      booking.tickets.all().delete()
+      booking.delete()
 
 
 async def main() -> None:
@@ -38,22 +34,22 @@ async def main() -> None:
       .prefetch_related('tickets')
     )
   except Exception as e:
-    print(f'[ERROR] Test 13 failed (data preparation): {e}')
+    print(f'[ERROR] Test 17 failed (data preparation): {e}')
     sys.exit(1)
 
   start = time.perf_counter_ns()
 
   try:
-    await update_nested_sync(bookings)
+    await delete_nested_sync(bookings)
   except Exception as e:
-    print(f'[ERROR] Test 13 failed (update phase): {e}')
+    print(f'[ERROR] Test 17 failed (delete phase): {e}')
     sys.exit(1)
 
   end = time.perf_counter_ns()
   elapsed = end - start
 
   print(
-    f'Django ORM (async). Test 13. Nested update. {COUNT} entries\n'
+    f'Django ORM (async). Test 17. Nested delete. {COUNT} entries\n'
     f'elapsed_ns={elapsed}'
   )
 

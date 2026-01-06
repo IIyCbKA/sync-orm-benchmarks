@@ -90,9 +90,11 @@ Therefore, it is recommended to run *exclusively* the ready `start.sh`.
 10. Filter, paginate & sort
 11. Transaction update
 12. Single update
-13. Nested transaction update
+13. Nested update
 14. Transaction delete
 15. Single delete 
+16. Bulk delete
+17. Nested delete
 
 ---
 

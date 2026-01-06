@@ -1,5 +1,4 @@
-from decimal import Decimal
-from pony.orm import db_session, select, flush, commit
+from pony.orm import db_session, select, commit
 from core.models import Booking
 import os
 import sys
@@ -21,7 +20,7 @@ def main() -> None:
         .prefetch(Booking.tickets)
       )
   except Exception as e:
-    print(f'[ERROR] Test 13 failed (data preparation): {e}')
+    print(f'[ERROR] Test 17 failed (data preparation): {e}')
     sys.exit(1)
 
   start = time.perf_counter_ns()
@@ -29,21 +28,19 @@ def main() -> None:
   try:
     with db_session:
       for booking in bookings:
-        booking.total_amount += Decimal('10.00')
-        flush()
         for ticket in booking.tickets:
-          ticket.passenger_name = 'Nested update'
-          flush()
+          ticket.delete()
+        booking.delete()
         commit()
   except Exception as e:
-    print(f'[ERROR] Test 13 failed (update phase): {e}')
+    print(f'[ERROR] Test 17 failed (delete phase): {e}')
     sys.exit(1)
 
   end = time.perf_counter_ns()
   elapsed = end - start
 
   print(
-    f'PonyORM. Test 13. Nested update. {COUNT} entries\n'
+    f'PonyORM. Test 17. Nested delete. {COUNT} entries\n'
     f'elapsed_ns={elapsed}'
   )
 
