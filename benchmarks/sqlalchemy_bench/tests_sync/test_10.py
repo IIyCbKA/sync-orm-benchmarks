@@ -1,3 +1,4 @@
+import sys
 from datetime import datetime, timedelta, UTC
 from decimal import Decimal
 import os
@@ -33,7 +34,8 @@ def main() -> None:
 
         results = session.scalars(stmt).all()
     except Exception as e:
-        print(e)
+        print(f'[ERROR] Test 10 failed: {e}')
+        sys.exit(1)
 
     elapsed = time.perf_counter_ns() - start
 

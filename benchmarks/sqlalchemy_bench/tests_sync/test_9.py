@@ -1,3 +1,4 @@
+import sys
 import time
 from sqlalchemy import select
 from sqlalchemy.orm import joinedload
@@ -32,7 +33,8 @@ def main() -> None:
         result = session.scalars(stmt)
         tickets = result.all()
     except Exception as e:
-        print(e)
+        print(f'[ERROR] Test 9 failed: {e}')
+        sys.exit(1)
 
     elapsed = time.perf_counter_ns() - start
 

@@ -1,4 +1,5 @@
 import os
+import sys
 import time
 from sqlalchemy import select
 
@@ -28,7 +29,8 @@ def main() -> None:
                 session.delete(booking)
                 session.commit()
     except Exception as e:
-        print(e)
+        print(f'[ERROR] Test 15 failed: {e}')
+        sys.exit(1)
 
     elapsed = time.perf_counter_ns() - start
 

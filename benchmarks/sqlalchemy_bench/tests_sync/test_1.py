@@ -1,3 +1,4 @@
+import sys
 from datetime import datetime, UTC
 from decimal import Decimal
 from functools import lru_cache
@@ -42,7 +43,8 @@ def main() -> None:
             session.commit()
 
     except Exception as e:
-        print(e)
+        print(f'[ERROR] Test 1 failed: {e}')
+        sys.exit(1)
 
     elapsed = time.perf_counter_ns() - start
 

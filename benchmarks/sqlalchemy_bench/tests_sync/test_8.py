@@ -1,3 +1,4 @@
+import sys
 import time
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -15,7 +16,8 @@ def main() -> None:
     try:
         _ = session.get(Booking, generate_book_ref(1))
     except Exception as e:
-        print(e)
+        print(f'[ERROR] Test 8 failed: {e}')
+        sys.exit(1)
 
     elapsed = time.perf_counter_ns() - start
 

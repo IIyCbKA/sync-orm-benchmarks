@@ -1,3 +1,4 @@
+import sys
 from decimal import Decimal
 import os
 import time
@@ -39,7 +40,8 @@ def main() -> None:
     try:
         update_nested()
     except Exception as e:
-        print(e)
+        print(f'[ERROR] Test 13 failed: {e}')
+        sys.exit(1)
 
     end = time.perf_counter_ns()
     elapsed = end - start
