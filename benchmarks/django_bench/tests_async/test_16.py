@@ -12,35 +12,29 @@ COUNT = int(os.environ.get('ITERATIONS', '2500'))
 
 
 def generate_book_ref(i: int) -> str:
-  return f'b{i:05d}'
-
-
-async def delete_booking(booking: Booking) -> None:
-  await booking.adelete()
+  return f'c{i:05d}'
 
 
 async def main() -> None:
   try:
     refs = [generate_book_ref(i) for i in range(COUNT)]
-    bookings = list(Booking.objects.filter(book_ref__in=refs))
   except Exception as e:
-    print(f'[ERROR] Test 15 failed (data preparation): {e}')
+    print(f'[ERROR] Test 16 failed (data preparation): {e}')
     sys.exit(1)
 
   start = time.perf_counter_ns()
 
   try:
-    tasks = [delete_booking(booking) for booking in bookings]
-    await asyncio.gather(*tasks)
+    await Booking.objects.filter(book_ref__in=refs).adelete()
   except Exception as e:
-    print(f'[ERROR] Test 15 failed (delete phase): {e}')
+    print(f'[ERROR] Test 16 failed (delete phase): {e}')
     sys.exit(1)
 
   end = time.perf_counter_ns()
   elapsed = end - start
 
   print(
-    f'Django ORM (async). Test 15. Single delete. {COUNT} entries\n'
+    f'Django ORM (async). Test 16. Bulk delete. {COUNT} entries\n'
     f'elapsed_ns={elapsed}'
   )
 

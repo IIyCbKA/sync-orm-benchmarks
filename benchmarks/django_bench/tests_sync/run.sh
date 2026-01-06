@@ -14,7 +14,7 @@ python -m warmup
 # Test 1 -> Single create
 python -m test_1
 
-# Test 2 -> Batch create
+# Test 2 -> Transaction create
 python -m test_2
 
 # Test 3 -> Bulk create
@@ -35,23 +35,29 @@ python -m test_7
 # Test 8 -> Find unique
 python -m test_8
 
-# Test 9 -> Nested find unique
+# Test 9 -> Nested find
 python -m test_9
 
 # Test 10 -> Filter, paginate & sort
 python -m test_10
 
-# Test 11 -> Batch update
+# Test 11 -> Transaction update
 python -m test_11
 
 # Test 12 -> Single update
 python -m test_12
 
-# Test 13 -> Nested batch update
+# Test 13 -> Nested update
 python -m test_13
 
-# Test 14 -> Batch delete
+# Test 14 -> Transaction delete
 python -m test_14
 
 # Test 15 -> Single delete
 python -m test_15
+
+# Test 16 -> Bulk delete
+python -m test_16
+
+# Test 17 -> Nested delete
+python -m test_17

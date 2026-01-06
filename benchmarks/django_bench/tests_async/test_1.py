@@ -29,22 +29,22 @@ def get_curr_date():
 
 
 async def create_booking(i: int) -> None:
-  try:
-    await Booking.objects.acreate(
-      book_ref=generate_book_ref(i),
-      book_date=get_curr_date(),
-      total_amount=generate_amount(i),
-    )
-  except Exception as e:
-    print(f'[ERROR] Test 1 failed: {e}')
-    sys.exit(1)
+  await Booking.objects.acreate(
+    book_ref=generate_book_ref(i),
+    book_date=get_curr_date(),
+    total_amount=generate_amount(i),
+  )
 
 
 async def main() -> None:
   start = time.perf_counter_ns()
 
-  tasks = [create_booking(i) for i in range(COUNT)]
-  await asyncio.gather(*tasks)
+  try:
+    tasks = [create_booking(i) for i in range(COUNT)]
+    await asyncio.gather(*tasks)
+  except Exception as e:
+    print(f'[ERROR] Test 1 failed: {e}')
+    sys.exit(1)
 
   end = time.perf_counter_ns()
   elapsed = end - start

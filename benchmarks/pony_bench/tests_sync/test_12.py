@@ -14,9 +14,8 @@ def generate_book_ref(i: int) -> str:
   return f'a{i:05d}'
 
 
-def get_new_amount(i: int) -> Decimal:
-  value = i + 100
-  return Decimal(value) / Decimal('10.00')
+def get_new_amount(value: Decimal) -> Decimal:
+  return value / Decimal('10.00')
 
 
 @lru_cache(1)
@@ -25,18 +24,24 @@ def get_curr_date():
 
 
 def main() -> None:
+  try:
+    refs = [generate_book_ref(i) for i in range(COUNT)]
+    with db_session:
+      bookings = list(select(b for b in Booking if b.book_ref in refs))
+  except Exception as e:
+    print(f'[ERROR] Test 12 failed (data preparation): {e}')
+    sys.exit(1)
+
   start = time.perf_counter_ns()
 
   try:
     with db_session:
-      for i in range(COUNT):
-        select(b for b in Booking if b.book_ref == generate_book_ref(i)).set(
-          total_amount=get_new_amount(i),
-          book_date=get_curr_date()
-        )
+      for booking in bookings:
+        booking.total_amount = get_new_amount(booking.total_amount)
+        booking.book_date = get_curr_date()
         commit()
   except Exception as e:
-    print(f'[ERROR] Test 12 failed: {e}')
+    print(f'[ERROR] Test 12 failed (update phase): {e}')
     sys.exit(1)
 
   end = time.perf_counter_ns()

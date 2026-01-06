@@ -1,4 +1,3 @@
-from decimal import Decimal
 import os
 import sys
 import time
@@ -25,7 +24,7 @@ def main() -> None:
       .prefetch_related('tickets')
     )
   except Exception as e:
-    print(f'[ERROR] Test 13 failed (data preparation): {e}')
+    print(f'[ERROR] Test 17 failed (data preparation): {e}')
     sys.exit(1)
 
   start = time.perf_counter_ns()
@@ -33,20 +32,17 @@ def main() -> None:
   try:
     for booking in bookings:
       with transaction.atomic():
-        booking.total_amount += Decimal('10.00')
-        booking.save(update_fields=['total_amount'])
-        for ticket in booking.tickets.all():
-          ticket.passenger_name = 'Nested update'
-          ticket.save(update_fields=['passenger_name'])
+        booking.tickets.all().delete()
+        booking.delete()
   except Exception as e:
-    print(f'[ERROR] Test 13 failed (update phase): {e}')
+    print(f'[ERROR] Test 17 failed (delete phase): {e}')
     sys.exit(1)
 
   end = time.perf_counter_ns()
   elapsed = end - start
 
   print(
-    f'Django ORM (sync). Test 13. Nested update. {COUNT} entries\n'
+    f'Django ORM (sync). Test 17. Nested delete. {COUNT} entries\n'
     f'elapsed_ns={elapsed}'
   )
 

@@ -12,15 +12,23 @@ def generate_book_ref(i: int) -> str:
 
 
 def main() -> None:
+  try:
+    refs = [generate_book_ref(i) for i in range(COUNT)]
+    with db_session:
+      bookings = list(select(b for b in Booking if b.book_ref in refs))
+  except Exception as e:
+    print(f'[ERROR] Test 15 failed (data preparation): {e}')
+    sys.exit(1)
+
   start = time.perf_counter_ns()
 
   try:
     with db_session:
-      for i in range(COUNT):
-        select(b for b in Booking if b.book_ref == generate_book_ref(i)).delete(bulk=True)
+      for booking in bookings:
+        booking.delete()
         commit()
   except Exception as e:
-    print(f'[ERROR] Test 15 failed: {e}')
+    print(f'[ERROR] Test 15 failed (delete phase): {e}')
     sys.exit(1)
 
   end = time.perf_counter_ns()
