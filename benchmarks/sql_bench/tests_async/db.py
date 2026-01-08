@@ -18,3 +18,14 @@ async def get_connection() -> asyncpg.Connection:
         user=DB_USER,
         password=DB_PASS,
     )
+
+async def get_pool() -> asyncpg.pool.Pool:
+    return await asyncpg.create_pool(
+        host=DB_HOST,
+        port=DB_PORT,
+        database=DB_NAME,
+        user=DB_USER,
+        password=DB_PASS,
+        min_size=1,
+        max_size=30
+    )

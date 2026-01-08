@@ -33,8 +33,8 @@ async def main() -> None:
     try:
         conn = await get_connection()
         try:
-            async with conn.transaction():
-                for i in range(COUNT):
+            for i in range(COUNT):
+                 async with conn.transaction():
                     booking_id = await conn.fetchval(
                         """
                         INSERT INTO bookings.bookings (book_ref, book_date, total_amount)

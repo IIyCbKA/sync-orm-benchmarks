@@ -25,18 +25,19 @@ async def main() -> None:
     try:
         conn = await get_connection()
         try:
-            for i in range(COUNT):
-                await conn.execute(
-                    """
-                    UPDATE bookings.bookings
-                    SET total_amount = $1,
-                        book_date = $2
-                    WHERE book_ref = $3
-                    """,
-                    get_new_amount(i),
-                    get_curr_date(),
-                    generate_book_ref(i)
-                )
+            async with conn.transaction():
+                for i in range(COUNT):
+                    await conn.execute(
+                        """
+                        UPDATE bookings.bookings
+                        SET total_amount = $1,
+                            book_date = $2
+                        WHERE book_ref = $3
+                        """,
+                        get_new_amount(i),
+                        get_curr_date(),
+                        generate_book_ref(i)
+                    )
         finally:
             await conn.close()
     except Exception as e:
@@ -44,9 +45,8 @@ async def main() -> None:
         sys.exit(1)
 
     elapsed = time.perf_counter_ns() - start
-
     print(
-        f'Pure async SQL (asyncpg). Test 11. Batch update. {COUNT} entries\n'
+        f'Pure async SQL (asyncpg). Test 11. Transaction update. {COUNT} entries\n'
         f'elapsed_ns={elapsed};'
     )
 
