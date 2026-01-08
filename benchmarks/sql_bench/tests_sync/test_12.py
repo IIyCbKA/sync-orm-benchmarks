@@ -23,8 +23,9 @@ def main() -> None:
 
     conn = get_connection()
     try:
-        for i in range(COUNT):
-            with conn.cursor() as cur:
+        with conn.cursor() as cur:
+            for i in range(COUNT):
+
                 cur.execute(
                     """
                     UPDATE bookings.bookings
@@ -44,7 +45,7 @@ def main() -> None:
 
     print(
         f'Pure SQL (psycopg3). Test 12. Single update. {COUNT} entries\n'
-        f'elapsed_sec={elapsed};'
+        f'elapsed_ns={elapsed};'
     )
 
 if __name__ == "__main__":

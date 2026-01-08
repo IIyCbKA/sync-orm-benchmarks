@@ -19,9 +19,9 @@ def generate_amount(i: int) -> Decimal:
 def main() -> None:
     start = time.perf_counter_ns()
     conn = get_connection()
-    for i in range(COUNT):
-        try:
-            with conn.cursor() as cur:
+    with conn.cursor() as cur:
+        for i in range(COUNT):
+            try:
                 cur.execute(
                     """
                     INSERT INTO bookings.bookings (book_ref, book_date, total_amount)
@@ -34,9 +34,9 @@ def main() -> None:
                     ),
                 )
                 conn.commit()
-        except Exception as e:
-            print(f'[ERROR] Test 1 failed: {e}')
-            sys.exit(1)
+            except Exception as e:
+                print(f'[ERROR] Test 1 failed: {e}')
+                sys.exit(1)
     conn.close()
 
     elapsed = time.perf_counter_ns() - start

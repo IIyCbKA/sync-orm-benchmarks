@@ -5,6 +5,8 @@ cd $(dirname $0)
 # Add a root dir for correct imports
 export PYTHONPATH=..
 
+python -m warmup
+
 # Test 1 -> Single create
 python -m test_1
 
@@ -48,3 +50,7 @@ python -m test_13
 python -m test_14
 
 python -m test_15
+
+python -m test_16
+
+python -m test_17

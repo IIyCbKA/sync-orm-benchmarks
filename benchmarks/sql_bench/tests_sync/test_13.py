@@ -14,8 +14,8 @@ def main() -> None:
     start = time.perf_counter_ns()
     conn = get_connection()
     try:
-        for i in range(COUNT):
-            with conn.cursor() as cur:
+        with conn.cursor() as cur:
+            for i in range(COUNT):
                 cur.execute(
                     """
                     UPDATE bookings.bookings

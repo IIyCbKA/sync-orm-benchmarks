@@ -12,8 +12,8 @@ def main() -> None:
     start = time.perf_counter_ns()
     conn = get_connection()
     try:
-        for i in range(COUNT):
-            with conn.cursor() as cur:
+        with conn.cursor() as cur:
+            for i in range(COUNT):
                 cur.execute(
                     """
                     DELETE FROM bookings.tickets
@@ -29,7 +29,7 @@ def main() -> None:
                     """,
                     (generate_book_ref(i),)
                 )
-            conn.commit()
+                conn.commit()
     except Exception as e:
         print(f'[ERROR] Test 14 failed: {e}')
         sys.exit(1)
