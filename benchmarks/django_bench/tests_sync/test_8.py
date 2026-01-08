@@ -14,7 +14,7 @@ def main() -> None:
   start = time.perf_counter_ns()
 
   try:
-    _ = Booking.objects.filter(book_ref=generate_book_ref(1)).first()
+    _ = Booking.objects.get(pk=generate_book_ref(1))
   except Exception as e:
     print(f'[ERROR] Test 8 failed: {e}')
     sys.exit(1)

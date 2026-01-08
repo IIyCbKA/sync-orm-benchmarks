@@ -79,20 +79,22 @@ Therefore, it is recommended to run *exclusively* the ready `start.sh`.
 ### Tests:
 
 1. Single create
-2. Batch create
+2. Transaction create
 3. Bulk create
 4. Nested create
 5. Find all
 6. Find first
 7. Nested find first
 8. Find unique
-9. Nested find unique
+9. Nested find
 10. Filter, paginate & sort
-11. Batch update
+11. Transaction update
 12. Single update
-13. Nested batch update
-14. Batch delete
+13. Nested update
+14. Transaction delete
 15. Single delete 
+16. Bulk delete
+17. Nested delete
 
 ---
 
