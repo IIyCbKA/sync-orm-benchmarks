@@ -42,7 +42,7 @@ def main() -> None:
     elapsed = time.perf_counter_ns() - start
 
     print(
-        f'Pure SQL (psycopg3). Test 2. Batch create. {COUNT} entities\n'
+        f'Pure SQL (psycopg3). Test 2. Transaction create. {COUNT} entities\n'
         f'elapsed_ns={elapsed};'
     )
 

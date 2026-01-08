@@ -35,7 +35,7 @@ async def main() -> None:
     elapsed = time.perf_counter_ns() - start
 
     print(
-        f'Pure async SQL (asyncpg). Test 9. Nested find unique\n'
+        f'Pure async SQL (asyncpg). Test 9. Nested find\n'
         f'elapsed_ns={elapsed};'
     )
 

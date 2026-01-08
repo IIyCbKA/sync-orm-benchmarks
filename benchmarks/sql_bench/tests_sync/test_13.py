@@ -41,7 +41,7 @@ def main() -> None:
     elapsed = time.perf_counter_ns() - start
 
     print(
-        f'Pure SQL (psycopg3). Test 13. Nested batch update. {COUNT} entries\n'
+        f'Pure SQL (psycopg3). Test 13. Nested update. {COUNT} entries\n'
         f'elapsed_ns={elapsed};'
     )
 

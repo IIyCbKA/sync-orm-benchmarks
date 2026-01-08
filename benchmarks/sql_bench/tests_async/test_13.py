@@ -44,7 +44,7 @@ async def main() -> None:
     elapsed = time.perf_counter_ns() - start
 
     print(
-        f'Pure async SQL (asyncpg). Test 13. Nested batch update. {COUNT} entries\n'
+        f'Pure async SQL (asyncpg). Test 13. Nested update. {COUNT} entries\n'
         f'elapsed_ns={elapsed};'
     )
 

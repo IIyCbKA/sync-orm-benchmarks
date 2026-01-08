@@ -43,7 +43,7 @@ async def main() -> None:
     elapsed = time.perf_counter_ns() - start
 
     print(
-        f'Pure async SQL (asyncpg). Test 2. Batch create. {COUNT} entities\n'
+        f'Pure async SQL (asyncpg). Test 2. Transaction create. {COUNT} entities\n'
         f'elapsed_ns={elapsed};'
     )
 

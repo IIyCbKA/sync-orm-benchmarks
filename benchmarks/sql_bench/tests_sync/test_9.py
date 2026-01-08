@@ -34,7 +34,7 @@ def main() -> None:
     elapsed = time.perf_counter_ns() - start
 
     print(
-        f'Pure SQL (psycopg3). Test 9. Nested find unique\n'
+        f'Pure SQL (psycopg3). Test 9. Nested find\n'
         f'elapsed_ns={elapsed};'
     )
 
