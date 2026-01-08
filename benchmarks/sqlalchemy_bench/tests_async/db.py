@@ -25,11 +25,16 @@ DATABASE_URL = (
 
 DEBUG = "debug" if os.getenv("DEBUG") == "True" else False
 
+POOL_SIZE = 25
+
 engine: AsyncEngine = create_async_engine(
     DATABASE_URL,
     echo=DEBUG,
-    pool_size=20,
-    max_overflow=10,
+    pool_size=POOL_SIZE,
+    max_overflow=0,
+    pool_timeout=30,
+    pool_recycle=2500,
+    pool_pre_ping=True,
 )
 
 

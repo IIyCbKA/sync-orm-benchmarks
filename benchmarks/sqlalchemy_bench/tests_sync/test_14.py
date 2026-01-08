@@ -1,4 +1,5 @@
 import os
+import sys
 import time
 from sqlalchemy import select, delete
 
@@ -26,7 +27,8 @@ def main() -> None:
     try:
         delete_booking()
     except Exception as e:
-        print(e)
+        print(f'[ERROR] Test 14 failed: {e}')
+        sys.exit(1)
 
     end = time.perf_counter_ns()
     elapsed = end - start

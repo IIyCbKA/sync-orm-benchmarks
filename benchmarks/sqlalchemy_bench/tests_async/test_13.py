@@ -1,4 +1,5 @@
 import asyncio
+import sys
 import time
 from decimal import Decimal
 from sqlalchemy import select
@@ -41,7 +42,8 @@ async def main() -> None:
     try:
         await update_nested_async()
     except Exception as e:
-        print(e)
+        print(f'[ERROR] Test 13 failed: {e}')
+        sys.exit(1)
 
     end = time.perf_counter_ns()
     elapsed = end - start

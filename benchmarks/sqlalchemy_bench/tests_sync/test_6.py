@@ -1,3 +1,4 @@
+import sys
 import time
 from sqlalchemy import select, asc
 from tests_sync.db import SessionLocal
@@ -7,13 +8,14 @@ from core.models import Booking
 def main() -> None:
     start = time.perf_counter_ns()
 
+    session = SessionLocal()
     try:
-        with SessionLocal() as session:
-            _ = session.scalars(
+        _ = session.scalars(
                 select(Booking).order_by(asc(Booking.book_ref)).limit(1)
             ).first()
     except Exception as e:
-        print(e)
+        print(f'[ERROR] Test 6 failed: {e}')
+        sys.exit(1)
 
     elapsed = time.perf_counter_ns() - start
 

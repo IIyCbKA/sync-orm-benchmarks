@@ -1,3 +1,4 @@
+import sys
 from datetime import datetime, UTC
 from decimal import Decimal
 from functools import lru_cache
@@ -32,19 +33,18 @@ def main() -> None:
     start = time.perf_counter_ns()
     session = SessionLocal()
     try:
-        with session.begin():
-            for i in range(COUNT):
+        for i in range(COUNT):
+            booking = Booking(
+                book_ref=generate_book_ref(i),
+                book_date=get_curr_date(),
+                total_amount=generate_amount(i),
+            )
+            session.add(booking)
+            session.commit()
 
-                    create(
-                        session,
-                        Booking(
-                            book_ref=generate_book_ref(i),
-                            book_date=get_curr_date(),
-                            total_amount=generate_amount(i),
-                        )
-                    )
     except Exception as e:
-        print(e)
+        print(f'[ERROR] Test 1 failed: {e}')
+        sys.exit(1)
 
     elapsed = time.perf_counter_ns() - start
 

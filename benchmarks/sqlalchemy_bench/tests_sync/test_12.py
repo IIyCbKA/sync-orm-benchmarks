@@ -1,3 +1,4 @@
+import sys
 from datetime import datetime, UTC
 from decimal import Decimal
 from functools import lru_cache
@@ -37,9 +38,10 @@ def main() -> None:
                 if booking:
                     booking.total_amount = get_new_amount(i)
                     booking.book_date = get_curr_date()
-                    session.flush()
+                    session.commit()
     except Exception as e:
-        print(e)
+        print(f'[ERROR] Test 12 failed: {e}')
+        sys.exit(1)
 
     elapsed = time.perf_counter_ns() - start
 

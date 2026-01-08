@@ -22,3 +22,5 @@ python -m test_12  # update single
 python -m test_13  # nested batch update
 python -m test_14  # batch delete
 python -m test_15  # single delete
+python -m test_16
+python -m test_17

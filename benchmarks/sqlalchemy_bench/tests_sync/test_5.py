@@ -1,3 +1,4 @@
+import sys
 import time
 
 from sqlalchemy import select
@@ -7,12 +8,12 @@ from core.models import Booking
 
 def main() -> None:
     start = time.perf_counter_ns()
-
+    session = SessionLocal()
     try:
-        with SessionLocal() as session:
-            _ = session.scalars(select(Booking)).all()
+        _ = session.scalars(select(Booking)).all()
     except Exception as e:
-        print(e)
+        print(f'[ERROR] Test 5 failed: {e}')
+        sys.exit(1)
 
     elapsed = time.perf_counter_ns() - start
 

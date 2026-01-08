@@ -1,6 +1,7 @@
+import sys
 import time
 from sqlalchemy import select
-
+from sqlalchemy.orm import Session
 from tests_sync.db import SessionLocal
 from core.models import Booking
 
@@ -11,14 +12,12 @@ def generate_book_ref(i: int) -> str:
 
 def main() -> None:
     start = time.perf_counter_ns()
-
+    session: Session = SessionLocal()
     try:
-        with SessionLocal() as session:
-            _ = session.scalars(
-                select(Booking).where(Booking.book_ref == generate_book_ref(1)).order_by(Booking.book_ref).limit(1)
-            ).first()
+        _ = session.get(Booking, generate_book_ref(1))
     except Exception as e:
-        print(e)
+        print(f'[ERROR] Test 8 failed: {e}')
+        sys.exit(1)
 
     elapsed = time.perf_counter_ns() - start
 

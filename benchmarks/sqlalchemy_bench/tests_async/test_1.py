@@ -1,11 +1,12 @@
 import asyncio
+import sys
 from datetime import datetime, UTC
 from decimal import Decimal
 from functools import lru_cache
 import os
 import time
 
-from tests_async.db import AsyncSessionLocal
+from tests_async.db import AsyncSessionLocal, POOL_SIZE
 from core.models import Booking
 
 COUNT = int(os.environ.get('ITERATIONS', '2500'))
@@ -27,19 +28,19 @@ def get_curr_date():
 async def create_booking(i: int) -> None:
     try:
         async with AsyncSessionLocal() as session:
-            async with session.begin():
-                booking = Booking(
-                    book_ref=generate_book_ref(i),
-                    book_date=get_curr_date(),
-                    total_amount=generate_amount(i),
-                )
-                session.add(booking)
-                await session.flush()
+            booking = Booking(
+                book_ref=generate_book_ref(i),
+                book_date=get_curr_date(),
+                total_amount=generate_amount(i),
+            )
+            session.add(booking)
+            await session.commit()
     except Exception as e:
-        print(e)
+        print(f'[ERROR] Test 1 failed: {e}')
+        sys.exit(1)
 
 
-sem = asyncio.Semaphore(30)
+sem = asyncio.Semaphore(POOL_SIZE)
 
 async def sem_task(task):
     async with sem:

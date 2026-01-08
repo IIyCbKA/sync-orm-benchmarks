@@ -1,4 +1,5 @@
 import asyncio
+import sys
 from datetime import datetime, UTC
 from decimal import Decimal
 from functools import lru_cache
@@ -34,7 +35,7 @@ async def batch_create_async() -> None:
                     total_amount=generate_amount(i),
                 )
                 session.add(booking)
-            await session.flush()
+                await session.flush()
 
 async def main() -> None:
     start = time.perf_counter_ns()
@@ -42,7 +43,8 @@ async def main() -> None:
     try:
         await batch_create_async()
     except Exception as e:
-        print(e)
+        print(f'[ERROR] Test 2 failed: {e}')
+        sys.exit(1)
 
     end = time.perf_counter_ns()
     elapsed = end - start

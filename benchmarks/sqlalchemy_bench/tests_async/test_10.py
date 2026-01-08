@@ -1,4 +1,5 @@
 import asyncio
+import sys
 import time
 from datetime import datetime, timedelta, UTC
 from decimal import Decimal
@@ -32,10 +33,11 @@ async def main() -> None:
                 .limit(LIMIT)
             )
             result = await session.scalars(stmt)
-            bookings = [b for b in result]
+            bookings = result.all()
 
     except Exception as e:
-        print(e)
+        print(f'[ERROR] Test 10 failed: {e}')
+        sys.exit(1)
 
     end = time.perf_counter_ns()
     elapsed = end - start

@@ -1,4 +1,5 @@
 import asyncio
+import sys
 import time
 from sqlalchemy import select
 from tests_async.db import AsyncSessionLocal
@@ -14,10 +15,10 @@ async def main() -> None:
 
     try:
         async with AsyncSessionLocal() as session:
-            stmt = select(Booking).where(Booking.book_ref == generate_book_ref(1)).limit(1)
-            booking = await session.scalar(stmt)
+            _ = await session.get(Booking, generate_book_ref(1))
     except Exception as e:
-        print(e)
+        print(f'[ERROR] Test 8 failed: {e}')
+        sys.exit(1)
 
     end = time.perf_counter_ns()
     elapsed = end - start
