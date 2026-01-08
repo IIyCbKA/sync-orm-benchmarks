@@ -25,7 +25,6 @@ def main() -> None:
     try:
         with conn.cursor() as cur:
             for i in range(COUNT):
-
                 cur.execute(
                     """
                     UPDATE bookings.bookings
@@ -35,7 +34,7 @@ def main() -> None:
                     """,
                     (get_new_amount(i), get_curr_date(), generate_book_ref(i))
                 )
-            conn.commit()
+                conn.commit()
     except Exception as e:
         print(f'[ERROR] Test 12 failed: {e}')
         sys.exit(1)

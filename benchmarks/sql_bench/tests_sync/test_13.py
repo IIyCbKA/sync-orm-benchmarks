@@ -33,7 +33,7 @@ def main() -> None:
                     """,
                     ('Nested update', generate_book_ref(i))
                 )
-            conn.commit()
+                conn.commit()
     except Exception as e:
         print(f'[ERROR] Test 13 failed: {e}')
         sys.exit(1)

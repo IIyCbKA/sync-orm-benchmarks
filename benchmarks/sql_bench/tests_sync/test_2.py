@@ -21,19 +21,18 @@ def main() -> None:
 
     rows = []
     curr_date = datetime.now(UTC)
-    for i in range(COUNT):
-        rows.append((generate_book_ref(i), curr_date, generate_amount(i)))
     connection = get_connection()
     try:
         with connection as conn:
             with conn.cursor() as cur:
-                cur.executemany(
-                    """
-                    INSERT INTO bookings.bookings (book_ref, book_date, total_amount)
-                    VALUES (%s, %s, %s)
-                    """,
-                    rows,
-                )
+                for i in range(COUNT):
+                    cur.execute(
+                        """
+                        INSERT INTO bookings.bookings (book_ref, book_date, total_amount)
+                        VALUES (%s, %s, %s)
+                        """,
+                        (generate_book_ref(i), curr_date, generate_amount(i)),
+                    )
             conn.commit()
     except Exception as e:
         print(f'[ERROR] Test 2 failed: {e}')

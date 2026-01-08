@@ -16,7 +16,7 @@ def generate_book_ref(i: int) -> str:
     return f'a{i:05d}'
 
 
-def get_new_amount(i: int) -> Decimal:
+def get_new_amount(i: Decimal) -> Decimal:
     return Decimal(i + 100) / Decimal('10.00')
 
 
@@ -26,16 +26,17 @@ def get_curr_date():
 
 
 def main() -> None:
+    session: Session = SessionLocal()
+    refs = [generate_book_ref(i) for i in range(COUNT)]
+    statement = select(Booking).where(Booking.book_ref.in_(refs))
+    bookings = session.execute(statement).scalars().all()
+    session.commit()
     start = time.perf_counter_ns()
-
     try:
-        session: Session = SessionLocal()
         with session.begin():
-            for i in range(COUNT):
-                statement = select(Booking).where(Booking.book_ref == generate_book_ref(i)).order_by(Booking.book_ref).limit(1)
-                booking = session.execute(statement).scalars().first()
+            for booking in bookings:
                 if booking:
-                    booking.total_amount = get_new_amount(i)
+                    booking.total_amount = get_new_amount(booking.total_amount)
                     booking.book_date = get_curr_date()
                     session.flush()
     except Exception as e:

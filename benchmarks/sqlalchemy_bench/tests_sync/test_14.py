@@ -17,8 +17,9 @@ def delete_booking():
     refs = [generate_book_ref(i) for i in range(COUNT)]
     with SessionLocal() as session:
         with session.begin():
-            stmt = delete(Booking).where(Booking.book_ref.in_(refs))
-            session.execute(stmt)
+            for ref in refs:
+                stmt = delete(Booking).where(Booking.book_ref == ref)
+                session.execute(stmt)
 
 
 def main() -> None:

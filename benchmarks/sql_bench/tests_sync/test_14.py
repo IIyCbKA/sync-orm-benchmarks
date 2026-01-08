@@ -16,20 +16,12 @@ def main() -> None:
             for i in range(COUNT):
                 cur.execute(
                     """
-                    DELETE FROM bookings.tickets
-                    USING bookings.bookings b
-                    WHERE tickets.book_ref = b.book_ref AND b.book_ref = %s
-                    """,
-                    (generate_book_ref(i),)
-                )
-                cur.execute(
-                    """
                     DELETE FROM bookings.bookings
                     WHERE book_ref = %s
                     """,
                     (generate_book_ref(i),)
                 )
-                conn.commit()
+            conn.commit()
     except Exception as e:
         print(f'[ERROR] Test 14 failed: {e}')
         sys.exit(1)
