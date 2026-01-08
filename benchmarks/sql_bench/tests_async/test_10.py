@@ -1,4 +1,5 @@
 import asyncio
+import sys
 from datetime import datetime, timedelta, UTC
 from decimal import Decimal
 import os
@@ -13,7 +14,7 @@ async def main() -> None:
     date_from = now - timedelta(days=30)
     amount_low = Decimal('50.00')
     amount_high = Decimal('500.00')
-    start = time.time()
+    start = time.perf_counter_ns()
     rows = []
 
     try:
@@ -32,14 +33,15 @@ async def main() -> None:
             )
         finally:
             await conn.close()
-    except Exception:
-        rows = []
+    except Exception as e:
+        print(f'[ERROR] Test 10 failed: {e}')
+        sys.exit(1)
 
-    elapsed = time.time() - start
+    elapsed = time.perf_counter_ns() - start
 
     print(
         f'Pure async SQL (asyncpg). Test 10. Filter, paginate & sort\n'
-        f'elapsed_sec={elapsed:.4f};'
+        f'elapsed_ns={elapsed};'
     )
 
 if __name__ == "__main__":

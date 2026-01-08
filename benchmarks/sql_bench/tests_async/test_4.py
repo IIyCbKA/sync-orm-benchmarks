@@ -1,5 +1,6 @@
 import asyncio
 import os
+import sys
 import time
 from datetime import datetime, UTC
 from decimal import Decimal
@@ -26,7 +27,7 @@ def generate_amount(i: int) -> Decimal:
 
 
 async def main() -> None:
-    start = time.time()
+    start = time.perf_counter_ns()
     curr_date = datetime.now(UTC)
 
     try:
@@ -38,17 +39,16 @@ async def main() -> None:
                         """
                         INSERT INTO bookings.bookings (book_ref, book_date, total_amount)
                         VALUES ($1, $2, $3)
-                        RETURNING id
+                        RETURNING book_ref
                         """,
                         generate_book_ref(i),
                         curr_date,
                         generate_amount(i),
                     )
-
                     await conn.execute(
                         """
                         INSERT INTO bookings.tickets 
-                        (ticket_no, book_ref_id, passenger_id, passenger_name, outbound)
+                        (ticket_no, book_ref, passenger_id, passenger_name, outbound)
                         VALUES ($1, $2, $3, $4, $5)
                         """,
                         generate_ticket_no(i),
@@ -59,13 +59,14 @@ async def main() -> None:
                     )
         finally:
             await conn.close()
-    except Exception:
-        pass
+    except Exception as e:
+        print(f'[ERROR] Test 4 failed: {e}')
+        sys.exit(1)
 
-    elapsed = time.time() - start
+    elapsed = time.perf_counter_ns() - start
     print(
         f'Pure async SQL (asyncpg). Test 4. Nested create. {COUNT} entities\n'
-        f'elapsed_sec={elapsed:.4f};'
+        f'elapsed_ns={elapsed};'
     )
 
 

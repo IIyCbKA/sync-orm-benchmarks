@@ -1,4 +1,5 @@
 import asyncio
+import sys
 from datetime import datetime, UTC
 from decimal import Decimal
 from functools import lru_cache
@@ -19,7 +20,7 @@ def get_curr_date():
     return datetime.now(UTC)
 
 async def main() -> None:
-    start = time.time()
+    start = time.perf_counter_ns()
 
     try:
         conn = await get_connection()
@@ -38,14 +39,15 @@ async def main() -> None:
                 )
         finally:
             await conn.close()
-    except Exception:
-        pass
+    except Exception as e:
+        print(f'[ERROR] Test 11 failed: {e}')
+        sys.exit(1)
 
-    elapsed = time.time() - start
+    elapsed = time.perf_counter_ns() - start
 
     print(
         f'Pure async SQL (asyncpg). Test 11. Batch update. {COUNT} entries\n'
-        f'elapsed_sec={elapsed:.4f};'
+        f'elapsed_ns={elapsed};'
     )
 
 if __name__ == "__main__":

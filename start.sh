@@ -38,6 +38,7 @@ declare -A MODES_MAP=(
   ["django"]="sync async"
   ["pony"]="sync"
   ["sqlalchemy"]="sync async"
+  ["sql"]="sync async"
 )
 
 NAME="${1:-}"

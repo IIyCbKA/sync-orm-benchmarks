@@ -1,35 +1,37 @@
 import asyncio
+import sys
 import time
 from tests_async.db import get_connection
 
 async def main() -> None:
-    start = time.time()
-    ticket_count = 0
+    start = time.perf_counter_ns()
 
     try:
         conn = await get_connection()
         try:
-            first_booking = await conn.fetchrow(
-                "SELECT id FROM bookings.bookings ORDER BY book_ref LIMIT 1"
-            )
-
-            if first_booking:
-                booking_id = first_booking['id']
-                ticket_result = await conn.fetchrow(
-                    "SELECT COUNT(*) AS cnt FROM bookings.tickets WHERE book_ref_id = $1",
-                    booking_id
-                )
-                ticket_count = ticket_result['cnt'] if ticket_result else 0
+            await conn.fetchrow("""SELECT 
+                tickets.ticket_no, 
+                tickets.book_ref, 
+                tickets.passenger_id, 
+                tickets.passenger_name, 
+                tickets.outbound, 
+                bookings.book_ref, 
+                bookings.book_date, 
+                bookings.total_amount 
+                FROM tickets 
+                INNER JOIN bookings ON (tickets.book_ref = bookings.book_ref) 
+                ORDER BY tickets.ticket_no ASC LIMIT 1""")
         finally:
             await conn.close()
-    except Exception:
-        pass
+    except Exception as e:
+        print(f'[ERROR] Test 7 failed: {e}')
+        sys.exit(1)
 
-    elapsed = time.time() - start
+    elapsed = time.perf_counter_ns() - start
 
     print(
         f'Pure async SQL (asyncpg). Test 7. Nested find first\n'
-        f'elapsed_sec={elapsed:.4f};'
+        f'elapsed_ns={elapsed};'
     )
 
 if __name__ == "__main__":

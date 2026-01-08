@@ -1,4 +1,5 @@
 import asyncio
+import sys
 import time
 from tests_async.db import get_connection
 
@@ -6,7 +7,7 @@ def generate_book_ref(i: int) -> str:
     return f'a{i:05d}'
 
 async def main() -> None:
-    start = time.time()
+    start = time.perf_counter_ns()
     booking = None
 
     try:
@@ -18,14 +19,15 @@ async def main() -> None:
             )
         finally:
             await conn.close()
-    except Exception:
-        pass
+    except Exception as e:
+        print(f'[ERROR] Test 8 failed: {e}')
+        sys.exit(1)
 
-    elapsed = time.time() - start
+    elapsed = time.perf_counter_ns() - start
 
     print(
         f'Pure async SQL (asyncpg). Test 8. Find unique\n'
-        f'elapsed_sec={elapsed:.4f};'
+        f'elapsed_ns={elapsed};'
     )
 
 if __name__ == "__main__":

@@ -1,4 +1,5 @@
 import asyncio
+import sys
 from datetime import datetime, UTC
 from decimal import Decimal
 from functools import lru_cache
@@ -19,33 +20,31 @@ def get_curr_date():
     return datetime.now(UTC)
 
 async def main() -> None:
-    start = time.time()
-
+    start = time.perf_counter_ns()
+    conn = await get_connection()
     try:
         for i in range(COUNT):
-            conn = await get_connection()
-            try:
-                await conn.execute(
-                    """
-                    UPDATE bookings.bookings
-                    SET total_amount = $1,
-                        book_date = $2
-                    WHERE book_ref = $3
-                    """,
-                    get_new_amount(i),
-                    get_curr_date(),
-                    generate_book_ref(i)
-                )
-            finally:
-                await conn.close()
-    except Exception:
-        pass
+            await conn.execute(
+                """
+                UPDATE bookings.bookings
+                SET total_amount = $1,
+                    book_date = $2
+                WHERE book_ref = $3
+                """,
+                get_new_amount(i),
+                get_curr_date(),
+                generate_book_ref(i)
+            )
+        await conn.close()
+    except Exception as e:
+        print(f'[ERROR] Test 12 failed: {e}')
+        sys.exit(1)
 
-    elapsed = time.time() - start
+    elapsed = time.perf_counter_ns() - start
 
     print(
         f'Pure async SQL (asyncpg). Test 12. Single update. {COUNT} entries\n'
-        f'elapsed_sec={elapsed:.4f};'
+        f'elapsed_ns={elapsed};'
     )
 
 if __name__ == "__main__":
