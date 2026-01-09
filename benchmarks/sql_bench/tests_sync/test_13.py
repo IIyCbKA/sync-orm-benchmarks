@@ -41,19 +41,19 @@ def main() -> None:
         with get_connection() as conn:
             with conn.cursor() as cur:
                 for ref, old_amount, tickets in current_data:
-                    cur.execute("""
-                        UPDATE bookings.bookings
-                        SET total_amount = %s
-                        WHERE book_ref = %s
-                    """, total_amount + Decimal('10.00'), ref)
-
-                    for ticket_no in tickets:
+                    with conn.transaction():
                         cur.execute("""
-                            UPDATE bookings.tickets
-                            SET passenger_name = %s
-                            WHERE ticket_no = %s
-                        """, ('Nested update', ticket_no))
-                    conn.commit()
+                            UPDATE bookings.bookings
+                            SET total_amount = %s
+                            WHERE book_ref = %s
+                        """, total_amount + Decimal('10.00'), ref)
+
+                        for ticket_no in tickets:
+                            cur.execute("""
+                                UPDATE bookings.tickets
+                                SET passenger_name = %s
+                                WHERE ticket_no = %s
+                            """, ('Nested update', ticket_no))
     except Exception as e:
         print(f'[ERROR] Test 13 failed (update phase): {e}')
         sys.exit(1)

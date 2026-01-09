@@ -10,9 +10,9 @@ COUNT = int(os.environ.get('WARMUP_ITERATIONS', '20'))
 def warm_up() -> None:
     try:
         with get_connection() as conn:
-            for i in range(COUNT):
-                with conn.transaction():
-                    with conn.cursor() as cur:
+            with conn.cursor() as cur:
+                for i in range(COUNT):
+                    with conn.transaction():
                         book_ref = f"warm{i:02d}"
                         ticket_no = f"warm{i:09d}"
 

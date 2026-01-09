@@ -39,23 +39,23 @@ def main() -> None:
             with conn.cursor() as cur:
                 for i in range(COUNT):
                     book_ref = generate_book_ref(i)
-                    cur.execute("""
-                        INSERT INTO bookings.bookings (book_ref, book_date, total_amount)
-                        VALUES (%s, %s, %s)
-                    """, (book_ref, get_curr_date(), generate_amount(i)))
+                    with conn.transaction():
+                        cur.execute("""
+                            INSERT INTO bookings.bookings (book_ref, book_date, total_amount)
+                            VALUES (%s, %s, %s)
+                        """, (book_ref, get_curr_date(), generate_amount(i)))
 
-                    cur.execute("""
-                        INSERT INTO bookings.tickets 
-                        (ticket_no, book_ref, passenger_id, passenger_name, outbound)
-                        VALUES (%s, %s, %s, %s, %s)
-                    """, (
-                        generate_ticket_no(i),
-                        book_ref,
-                        generate_passenger_id(i),
-                        'Test',
-                        True,
-                    ))
-                    conn.commit()
+                        cur.execute("""
+                            INSERT INTO bookings.tickets 
+                            (ticket_no, book_ref, passenger_id, passenger_name, outbound)
+                            VALUES (%s, %s, %s, %s, %s)
+                        """, (
+                            generate_ticket_no(i),
+                            book_ref,
+                            generate_passenger_id(i),
+                            'Test',
+                            True,
+                        ))
     except Exception as e:
         print(f'[ERROR] Test 4 failed: {e}')
         sys.exit(1)

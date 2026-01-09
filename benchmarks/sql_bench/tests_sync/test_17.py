@@ -34,15 +34,15 @@ def main() -> None:
         with get_connection() as conn:
             with conn.cursor() as cur:
                 for ref, tickets in current_data:
-                    for ticket_no in tickets:
-                        cur.execute("""
-                            DELETE FROM bookings.tickets WHERE ticket_no = %s
-                        """, (ticket_no,))
+                    with conn.transaction():
+                        for ticket_no in tickets:
+                            cur.execute("""
+                                DELETE FROM bookings.tickets WHERE ticket_no = %s
+                            """, (ticket_no,))
 
-                    cur.execute("""
-                        DELETE FROM bookings.bookings WHERE book_ref = %s
-                    """, (ref,))
-                    conn.commit()
+                        cur.execute("""
+                            DELETE FROM bookings.bookings WHERE book_ref = %s
+                        """, (ref,))
     except Exception as e:
         print(f'[ERROR] Test 17 failed (delete phase): {e}')
         sys.exit(1)

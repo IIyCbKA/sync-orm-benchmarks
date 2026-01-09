@@ -44,14 +44,14 @@ def main() -> None:
     try:
         with get_connection() as conn:
             with conn.cursor() as cur:
-                for ref, old_amount in current_values:
-                    cur.execute("""
-                        UPDATE bookings.bookings
-                        SET total_amount = %s,
-                            book_date = %s
-                        WHERE book_ref = %s
-                    """, (get_new_amount(old_amount), get_curr_date(), ref))
-            conn.commit()
+                with conn.transaction():
+                    for ref, old_amount in current_values:
+                        cur.execute("""
+                            UPDATE bookings.bookings
+                            SET total_amount = %s,
+                                book_date = %s
+                            WHERE book_ref = %s
+                        """, (get_new_amount(old_amount), get_curr_date(), ref))
     except Exception as e:
         print(f'[ERROR] Test 11 failed (update phase): {e}')
         sys.exit(1)

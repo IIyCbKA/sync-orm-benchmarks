@@ -29,12 +29,12 @@ def main() -> None:
     try:
         with get_connection() as conn:
             with conn.cursor() as cur:
-                for i in range(COUNT):
-                    cur.execute("""
-                        INSERT INTO bookings.bookings (book_ref, book_date, total_amount)
-                        VALUES (%s, %s, %s)
-                    """, (generate_book_ref(i), get_curr_date(), generate_amount(i)))
-            conn.commit()
+                with conn.transaction():
+                    for i in range(COUNT):
+                        cur.execute("""
+                            INSERT INTO bookings.bookings (book_ref, book_date, total_amount)
+                            VALUES (%s, %s, %s)
+                        """, (generate_book_ref(i), get_curr_date(), generate_amount(i)))
     except Exception as e:
         print(f'[ERROR] Test 2 failed: {e}')
         sys.exit(1)

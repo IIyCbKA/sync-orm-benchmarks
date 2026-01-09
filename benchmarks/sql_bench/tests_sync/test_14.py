@@ -17,12 +17,12 @@ def main() -> None:
     try:
         with get_connection() as conn:
             with conn.cursor() as cur:
-                for ref in refs:
-                    cur.execute("""
-                        DELETE FROM bookings.bookings
-                        WHERE book_ref = %s
-                    """, (ref,))
-                conn.commit()
+                with conn.transaction():
+                    for ref in refs:
+                        cur.execute("""
+                            DELETE FROM bookings.bookings
+                            WHERE book_ref = %s
+                        """, (ref,))
     except Exception as e:
         print(f'[ERROR] Test 14 failed: {e}')
         sys.exit(1)
