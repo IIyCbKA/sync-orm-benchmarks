@@ -22,12 +22,13 @@ def generate_passenger_id(i: int) -> str:
 
 
 def generate_amount(i: int) -> Decimal:
-    return Decimal(i + 500) / Decimal("10.00")
+    value = i + 500
+    return Decimal(value) / Decimal('10.00')
 
 
 @lru_cache(1)
 def get_curr_date():
-  return datetime.now(UTC)
+    return datetime.now(UTC)
 
 
 def main() -> None:
@@ -37,41 +38,36 @@ def main() -> None:
         with get_connection() as conn:
             with conn.cursor() as cur:
                 for i in range(COUNT):
-                    cur.execute(
-                        """
+                    book_ref = generate_book_ref(i)
+                    cur.execute("""
                         INSERT INTO bookings.bookings (book_ref, book_date, total_amount)
                         VALUES (%s, %s, %s)
-                        RETURNING book_ref
-                        """,
-                        (generate_book_ref(i), get_curr_date(), generate_amount(i))
-                    )
-                    booking_id = cur.fetchone()[0]
+                    """, (book_ref, get_curr_date(), generate_amount(i)))
 
-                    cur.execute(
-                        """
+                    cur.execute("""
                         INSERT INTO bookings.tickets 
                         (ticket_no, book_ref, passenger_id, passenger_name, outbound)
                         VALUES (%s, %s, %s, %s, %s)
-                        """,
-                        (
-                            generate_ticket_no(i),
-                            booking_id,
-                            generate_passenger_id(i),
-                            "Test",
-                            True,
-                        )
-                    )
+                    """, (
+                        generate_ticket_no(i),
+                        book_ref,
+                        generate_passenger_id(i),
+                        'Test',
+                        True,
+                    ))
                     conn.commit()
     except Exception as e:
         print(f'[ERROR] Test 4 failed: {e}')
         sys.exit(1)
 
-    elapsed = time.perf_counter_ns() - start
+    end = time.perf_counter_ns()
+    elapsed = end - start
+
     print(
         f'Pure SQL (psycopg3). Test 4. Nested create. {COUNT} entities\n'
         f'elapsed_ns={elapsed}'
     )
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

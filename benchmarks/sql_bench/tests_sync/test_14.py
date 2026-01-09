@@ -18,24 +18,22 @@ def main() -> None:
         with get_connection() as conn:
             with conn.cursor() as cur:
                 for ref in refs:
-                    cur.execute(
-                        """
+                    cur.execute("""
                         DELETE FROM bookings.bookings
                         WHERE book_ref = %s
-                        """,
-                        (ref,)
-                    )
+                    """, (ref,))
                 conn.commit()
     except Exception as e:
         print(f'[ERROR] Test 14 failed: {e}')
         sys.exit(1)
 
-    elapsed = time.perf_counter_ns() - start
+    end = time.perf_counter_ns()
+    elapsed = end - start
 
     print(
         f'Pure SQL (psycopg3). Test 14. Transaction delete. {COUNT} entries\n'
         f'elapsed_ns={elapsed}'
     )
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

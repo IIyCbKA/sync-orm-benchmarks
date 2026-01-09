@@ -17,19 +17,17 @@ def main() -> None:
     try:
         with get_connection() as conn:
             with conn.cursor() as cur:
-                cur.execute(
-                    """
+                cur.execute("""
                     DELETE FROM bookings.bookings
                     WHERE book_ref = ANY(%s)
-                    """,
-                    (refs,)
-                )
+                """, (refs,))
                 conn.commit()
     except Exception as e:
         print(f'[ERROR] Test 16 failed: {e}')
         sys.exit(1)
 
-    elapsed = time.perf_counter_ns() - start
+    end = time.perf_counter_ns()
+    elapsed = end - start
 
     print(
         f'Pure SQL (psycopg3). Test 16. Bulk delete. {COUNT} entries\n'
@@ -37,5 +35,5 @@ def main() -> None:
     )
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

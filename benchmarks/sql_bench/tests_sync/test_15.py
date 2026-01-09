@@ -11,25 +11,24 @@ def generate_book_ref(i: int) -> str:
 
 
 def main() -> None:
+    refs = [generate_book_ref(i) for i in range(COUNT)]
     start = time.perf_counter_ns()
 
     try:
         with get_connection() as conn:
             with conn.cursor() as cur:
-                for i in range(COUNT):
-                    cur.execute(
-                        """
+                for ref in refs:
+                    cur.execute("""
                         DELETE FROM bookings.bookings
                         WHERE book_ref IN (%s)
-                        """,
-                        (generate_book_ref(i),)
-                    )
+                    """, (ref,))
                     conn.commit()
     except Exception as e:
         print(f'[ERROR] Test 15 failed: {e}')
         sys.exit(1)
 
-    elapsed = time.perf_counter_ns() - start
+    end = time.perf_counter_ns()
+    elapsed = end - start
 
     print(
         f'Pure SQL (psycopg3). Test 15. Single delete. {COUNT} entries\n'
@@ -37,5 +36,5 @@ def main() -> None:
     )
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

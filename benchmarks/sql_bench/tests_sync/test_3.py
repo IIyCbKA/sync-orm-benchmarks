@@ -6,6 +6,7 @@ import time
 import sys
 from tests_sync.db import get_connection
 from psycopg import sql
+
 COUNT = int(os.environ.get('ITERATIONS', '2500'))
 
 
@@ -14,12 +15,13 @@ def generate_book_ref(i: int) -> str:
 
 
 def generate_amount(i: int) -> Decimal:
-    return Decimal(i + 500) / Decimal("10.00")
+    value = i + 500
+    return Decimal(value) / Decimal('10.00')
 
 
 @lru_cache(1)
 def get_curr_date():
-  return datetime.now(UTC)
+    return datetime.now(UTC)
 
 
 def main() -> None:
@@ -45,7 +47,8 @@ def main() -> None:
         print(f'[ERROR] Test 3 failed: {e}')
         sys.exit(1)
 
-    elapsed = time.perf_counter_ns() - start
+    end = time.perf_counter_ns()
+    elapsed = end - start
 
     print(
         f'Pure SQL (psycopg3). Test 3. Bulk create. {COUNT} entities\n'
@@ -53,5 +56,5 @@ def main() -> None:
     )
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

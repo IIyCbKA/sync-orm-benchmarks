@@ -6,6 +6,7 @@ from tests_sync.db import get_connection
 
 COUNT = int(os.environ.get('WARMUP_ITERATIONS', '20'))
 
+
 def warm_up() -> None:
     try:
         with get_connection() as conn:
@@ -86,9 +87,12 @@ def warm_up() -> None:
                             "DELETE FROM bookings.bookings WHERE book_ref = %s",
                             (book_ref,),
                         )
-
     except Exception as e:
-        print(f"[ERROR] Warm-up failed: {e}")
+        print(f'[ERROR] Warm-up failed: {e}')
         sys.exit(1)
 
-    print("Warm-up done")
+    print('Warm-up done')
+
+
+if __name__ == '__main__':
+    warm_up()
