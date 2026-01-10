@@ -14,12 +14,18 @@ def generate_book_ref(i: int) -> str:
 
 
 def main() -> None:
-    start = time.perf_counter_ns()
-
-    bookings_to_delete = [generate_book_ref(i) for i in range(COUNT)]
-    session = SessionLocal()
     try:
-        statement = delete(Booking).where(Booking.book_ref.in_(bookings_to_delete))
+        refs = [generate_book_ref(i) for i in range(COUNT)]
+    except Exception as e:
+        print(f'[ERROR] Test 16 failed (data preparation): {e}')
+        sys.exit(1)
+
+
+    start = time.perf_counter_ns()
+    session = SessionLocal()
+
+    try:
+        statement = delete(Booking).where(Booking.book_ref.in_(refs))
         result = session.execute(statement)
         session.commit()
     except Exception as e:

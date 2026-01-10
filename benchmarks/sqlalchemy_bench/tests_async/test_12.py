@@ -1,23 +1,24 @@
 import asyncio
+import os
 import sys
 import time
 from datetime import datetime, UTC
 from decimal import Decimal
 from functools import lru_cache
+
 from sqlalchemy import select, update
 from tests_async.db import AsyncSessionLocal, POOL_SIZE
 from core.models import Booking
-import os
 
-COUNT = int(os.environ.get('ITERATIONS', '2500'))
+COUNT = int(os.environ.get("ITERATIONS", "2500"))
 
 
 def generate_book_ref(i: int) -> str:
-    return f'a{i:05d}'
+    return f"a{i:05d}"
 
 
-def get_new_amount(i: int) -> Decimal:
-    return Decimal(i + 100) / Decimal('10.00')
+def get_new_amount(value: Decimal) -> Decimal:
+    return value / Decimal("10.00")
 
 
 @lru_cache(1)
@@ -25,35 +26,42 @@ def get_curr_date():
     return datetime.now(UTC)
 
 
-async def update_booking(i: int):
-    async with AsyncSessionLocal() as session:
-        try:
-            statement = select(Booking).where(Booking.book_ref == generate_book_ref(i)).order_by(Booking.book_ref).limit(1)
-            result = await session.scalars(statement)
-            booking = result.first()
-            if booking:
-                booking.total_amount = get_new_amount(i)
-                booking.book_date = get_curr_date()
-                await session.commit()
-        except Exception as e:
-            print(f'[ERROR] Test 12 failed: {e}')
-            sys.exit(1)
-
 sem = asyncio.Semaphore(POOL_SIZE)
 
-async def sem_task(task):
+
+async def update_booking(book_ref: str, amount: Decimal):
     async with sem:
-        return await task
+        async with AsyncSessionLocal() as session:
+            async with session.begin():
+                await session.execute(
+                    update(Booking)
+                    .where(Booking.book_ref == book_ref)
+                    .values(
+                        total_amount=get_new_amount(amount),
+                        book_date=get_curr_date(),
+                    )
+                )
 
 
 async def main() -> None:
+    async with AsyncSessionLocal() as session:
+        result = await session.execute(
+            select(Booking.book_ref, Booking.total_amount)
+            .where(Booking.book_ref.in_(
+                generate_book_ref(i) for i in range(COUNT)
+            ))
+        )
+        rows = result.all()
+
     start = time.perf_counter_ns()
 
-    tasks = [sem_task(update_booking(i)) for i in range(COUNT)]
+    tasks = [
+        update_booking(book_ref, amount)
+        for book_ref, amount in rows
+    ]
     await asyncio.gather(*tasks)
 
-    end = time.perf_counter_ns()
-    elapsed = end - start
+    elapsed = time.perf_counter_ns() - start
 
     print(
         f"SQLAlchemy (async). Test 12. Single update. {COUNT} entries\n"

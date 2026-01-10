@@ -29,7 +29,6 @@ async def main() -> None:
             )
             result = await session.execute(stmt)
             ticket = result.first()
-
     except Exception as e:
         print(f'[ERROR] Test 7 failed: {e}')
         sys.exit(1)

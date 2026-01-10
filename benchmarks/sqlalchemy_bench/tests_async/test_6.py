@@ -1,7 +1,7 @@
 import asyncio
 import sys
 import time
-from sqlalchemy import select
+from sqlalchemy import select, asc
 from tests_async.db import AsyncSessionLocal
 from core.models import Booking
 
@@ -12,7 +12,7 @@ async def main() -> None:
     try:
         async with AsyncSessionLocal() as session:
             booking = await session.scalar(
-                select(Booking).limit(1)
+                select(Booking).order_by(asc(Booking.book_ref)).limit(1)
             )
     except Exception as e:
         print(f'[ERROR] Test 6 failed: {e}')

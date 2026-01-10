@@ -27,11 +27,17 @@ def get_curr_date():
 
 def main() -> None:
     session: Session = SessionLocal()
-    refs = [generate_book_ref(i) for i in range(COUNT)]
-    statement = select(Booking).where(Booking.book_ref.in_(refs))
-    bookings = session.execute(statement).scalars().all()
-    session.commit()
+    try:
+        refs = [generate_book_ref(i) for i in range(COUNT)]
+        statement = select(Booking).where(Booking.book_ref.in_(refs))
+        bookings = session.execute(statement).scalars().all()
+        session.commit()
+    except Exception as e:
+        print(f'[ERROR] Test 11 failed (data preparation): {e}')
+        sys.exit(1)
+
     start = time.perf_counter_ns()
+
     try:
         with session.begin():
             for booking in bookings:

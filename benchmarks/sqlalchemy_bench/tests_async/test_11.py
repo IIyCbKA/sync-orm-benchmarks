@@ -25,25 +25,28 @@ def get_curr_date():
     return datetime.now(UTC)
 
 
-async def update_booking_async():
-    async with AsyncSessionLocal() as session:
-        async with session.begin():
-            for i in range(COUNT):
-                statement = select(Booking).where(Booking.book_ref == generate_book_ref(i)).order_by(
-                    Booking.book_ref).limit(1)
-                result = await session.execute(statement)
-                booking = result.scalars().first()
-                if booking:
-                    booking.total_amount = get_new_amount(i)
-                    booking.book_date = get_curr_date()
-                    await session.flush()
-
 
 async def main() -> None:
+    session = AsyncSessionLocal()
+    try:
+        refs = [generate_book_ref(i) for i in range(COUNT)]
+        statement = select(Booking).where(Booking.book_ref.in_(refs))
+        result = await session.execute(statement)
+        bookings = result.scalars().all()
+        await session.commit()
+    except Exception as e:
+        print(f'[ERROR] Test 11 failed (data preparation): {e}')
+        sys.exit(1)
+
     start = time.perf_counter_ns()
 
     try:
-        await update_booking_async()
+        async with session.begin():
+            for booking in bookings:
+                if booking:
+                    booking.total_amount = get_new_amount(booking.total_amount)
+                    booking.book_date = get_curr_date()
+                    await session.flush()
     except Exception as e:
         print(f'[ERROR] Test 11 failed: {e}')
         sys.exit(1)

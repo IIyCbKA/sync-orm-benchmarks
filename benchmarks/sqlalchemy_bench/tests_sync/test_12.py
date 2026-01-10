@@ -26,19 +26,23 @@ def get_curr_date():
 
 
 def main() -> None:
+    session = SessionLocal()
+    try:
+        refs = [generate_book_ref(i) for i in range(COUNT)]
+        statement = select(Booking).where(Booking.book_ref.in_(refs))
+        bookings = session.execute(statement).scalars().all()
+    except Exception as e:
+        print(f'[ERROR] Test 12 failed (data preparation): {e}')
+        sys.exit(1)
+
     start = time.perf_counter_ns()
 
     try:
-        with SessionLocal() as session:
-            for i in range(COUNT):
-                booking = session.scalars(
-                    select(Booking).where(Booking.book_ref == generate_book_ref(i)).order_by(Booking.book_ref).limit(1)
-                ).first()
+        for booking in bookings:
+            booking.total_amount = get_new_amount(booking.total_amount)
+            booking.book_date = get_curr_date()
+            session.commit()
 
-                if booking:
-                    booking.total_amount = get_new_amount(i)
-                    booking.book_date = get_curr_date()
-                    session.commit()
     except Exception as e:
         print(f'[ERROR] Test 12 failed: {e}')
         sys.exit(1)

@@ -26,9 +26,11 @@ async def main() -> None:
     except Exception as e:
         print(f'[ERROR] Test 16 failed (data preparation): {e}')
         sys.exit(1)
+
     session = AsyncSessionLocal()
 
     start = time.perf_counter_ns()
+
 
     try:
         async with session:

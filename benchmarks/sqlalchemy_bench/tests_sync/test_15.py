@@ -14,20 +14,21 @@ def generate_book_ref(i: int) -> str:
 
 
 def main() -> None:
-    start = time.perf_counter_ns()
-
     session = SessionLocal()
     try:
-        for i in range(COUNT):
-            booking = session.scalars(
-                select(Booking)
-                .where(Booking.book_ref == generate_book_ref(i))
-                .limit(1)
-            ).first()
+        refs = [generate_book_ref(i) for i in range(COUNT)]
+        statement = select(Booking).where(Booking.book_ref.in_(refs))
+        bookings = session.execute(statement).scalars().all()
+    except Exception as e:
+        print(f'[ERROR] Test 15 failed (data preparation): {e}')
+        sys.exit(1)
 
-            if booking:
-                session.delete(booking)
-                session.commit()
+    start = time.perf_counter_ns()
+
+    try:
+        for booking in bookings:
+            session.delete(booking)
+            session.commit()
     except Exception as e:
         print(f'[ERROR] Test 15 failed: {e}')
         sys.exit(1)

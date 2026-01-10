@@ -14,40 +14,47 @@ def generate_book_ref(i: int) -> str:
 
 
 
-async def delete_booking(i: int):
-    async with AsyncSessionLocal() as session:
-        try:
-            statement = select(Booking).where(Booking.book_ref == generate_book_ref(i)).limit(1)
-            result = await session.scalars(statement)
-            booking = result.first()
-            if booking:
-                await session.delete(booking)
-                await session.commit()
-        except Exception as e:
-            print(f'[ERROR] Test 15 failed: {e}')
-            sys.exit(1)
+from sqlalchemy import delete
+
+async def delete_booking(book_ref: str):
+    async with sem:
+        async with AsyncSessionLocal() as session:
+            async with session.begin():
+                await session.execute(
+                    delete(Booking).where(Booking.book_ref == book_ref)
+                )
+
 
 
 sem = asyncio.Semaphore(POOL_SIZE)
 
-async def sem_task(task):
-    async with sem:
-        return await task
+async def main():
+    try:
+        async with AsyncSessionLocal() as session:
+            result = await session.execute(
+                select(Booking.book_ref).where(
+                    Booking.book_ref.in_(
+                        generate_book_ref(i) for i in range(COUNT)
+                    )
+                )
+            )
+            refs = result.scalars().all()
+    except Exception as e:
+        print(f'[ERROR] Test 15 failed (data preparation): {e}')
+        sys.exit(1)
 
-async def main() -> None:
     start = time.perf_counter_ns()
 
-    tasks = [sem_task(delete_booking(i)) for i in range(COUNT)]
-    await asyncio.gather(*tasks)
+    await asyncio.gather(
+        *(delete_booking(ref) for ref in refs)
+    )
 
-    end = time.perf_counter_ns()
-    elapsed = end - start
+    elapsed = time.perf_counter_ns() - start
 
     print(
         f"SQLAlchemy (async). Test 15. Single delete. {COUNT} entries\n"
         f"elapsed_ns={elapsed:.0f};"
     )
-
 
 if __name__ == "__main__":
     asyncio.run(main())

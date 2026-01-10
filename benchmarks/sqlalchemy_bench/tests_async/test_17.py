@@ -3,6 +3,7 @@ import os
 import sys
 import time
 from sqlalchemy import delete, select
+from sqlalchemy.orm import selectinload
 from tests_async.db import AsyncSessionLocal, POOL_SIZE
 from core.models import Booking, Ticket
 
@@ -14,31 +15,29 @@ def generate_book_ref(i: int) -> str:
 
 
 async def main() -> None:
-    bookings_to_delete = [generate_book_ref(i) for i in range(COUNT)]
-
-    async with AsyncSessionLocal() as session:
-        result = await session.execute(
-            select(Booking.book_ref)
-            .where(Booking.book_ref.in_(bookings_to_delete))
-        )
+    session = AsyncSessionLocal()
+    try:
+        refs = [generate_book_ref(i) for i in range(COUNT)]
+        statement = (select(Booking)
+                     .options(selectinload(Booking.tickets))
+                     .where(Booking.book_ref.in_(refs)))
+        result = await session.execute(statement)
         bookings = result.scalars().all()
+    except Exception as e:
+        print(f'[ERROR] Test 17 failed (data preparation): {e}')
+        sys.exit(1)
 
-        await session.commit()
+    start = time.perf_counter_ns()
 
-        start = time.perf_counter_ns()
-
-        try:
-            for book_ref in bookings:
-                async with session.begin():
-                    await session.execute(
-                        delete(Ticket).where(Ticket.book_ref == book_ref)
-                    )
-                    await session.execute(
-                        delete(Booking).where(Booking.book_ref == book_ref)
-                    )
-        except Exception as e:
-            print(f"[ERROR] Test 17 failed: {e}")
-            sys.exit(1)
+    try:
+        for booking in bookings:
+            for ticket in booking.tickets:
+                await session.delete(ticket)
+            await session.delete(booking)
+            await session.commit()
+    except Exception as e:
+        print(f"[ERROR] Test 17 failed: {e}")
+        sys.exit(1)
 
     elapsed = time.perf_counter_ns() - start
 

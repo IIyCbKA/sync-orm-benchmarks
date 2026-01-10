@@ -10,8 +10,7 @@ async def main() -> None:
 
     try:
         async with AsyncSessionLocal() as session:
-            stmt = select(Booking)
-            result = await session.scalars(stmt)
+            result = await session.scalars(select(Booking))
             bookings = result.all()
     except Exception as e:
         print(f'[ERROR] Test 5 failed: {e}')

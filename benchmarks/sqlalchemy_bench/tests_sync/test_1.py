@@ -24,11 +24,6 @@ def get_curr_date():
     return datetime.now(UTC)
 
 
-def create(session, obj):
-    session.add(obj)
-    session.flush()
-    return obj
-
 def main() -> None:
     start = time.perf_counter_ns()
     session = SessionLocal()

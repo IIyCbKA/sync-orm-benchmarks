@@ -3,6 +3,7 @@ from decimal import Decimal
 import os
 import time
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 from tests_sync.db import SessionLocal
 from core.models import Booking, Ticket
 
@@ -14,27 +15,27 @@ def generate_book_ref(i: int) -> str:
 
 
 def main() -> None:
+    session = SessionLocal()
     try:
         refs = [generate_book_ref(i) for i in range(COUNT)]
-        with SessionLocal() as session:
-            with session.begin():
-                stmt = select(Booking).where(Booking.book_ref.in_(refs))
-                result = session.execute(stmt)
-                bookings = result.scalars().all()
+        statement = (select(Booking)
+                     .options(selectinload(Booking.tickets))
+                     .where(Booking.book_ref.in_(refs)))
+        bookings = session.execute(statement).scalars().all()
+    except Exception as e:
+        print(f'[ERROR] Test 13 failed (data preparation): {e}')
+        sys.exit(1)
 
-                start = time.perf_counter_ns()
-                for booking in bookings:
-                    booking.total_amount += Decimal("10.00")
-                    session.flush()
+    start = time.perf_counter_ns()
 
-                    ticket_stmt = select(Ticket).where(Ticket.book_ref == booking.book_ref)
-                    ticket_result = session.execute(ticket_stmt)
-                    tickets = ticket_result.scalars().all()
-
-                    for ticket in tickets:
-                        ticket.passenger_name = "Nested update"
-
-                    session.flush()
+    try:
+        for booking in bookings:
+            booking.total_amount += Decimal('10.00')
+            session.flush()
+            for ticket in booking.tickets:
+                ticket.passenger_name = 'Nested update'
+                session.flush()
+            session.commit()
     except Exception as e:
         print(f'[ERROR] Test 13 failed: {e}')
         sys.exit(1)
