@@ -26,19 +26,18 @@ async def main() -> None:
 
     try:
         conn = await get_connection()
-        try:
-            await conn.executemany(
-                """
-                INSERT INTO bookings.bookings (book_ref, book_date, total_amount)
-                VALUES ($1, $2, $3)
-                """,
-                rows
-            )
-        finally:
-            await conn.close()
+        await conn.executemany(
+            """
+            INSERT INTO bookings.bookings (book_ref, book_date, total_amount)
+            VALUES ($1, $2, $3)
+            """,
+            rows
+        )
     except Exception as e:
         print(f'[ERROR] Test 3 failed: {e}')
         sys.exit(1)
+    finally:
+        await conn.close()
 
     elapsed = time.perf_counter_ns() - start
 

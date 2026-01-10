@@ -5,17 +5,15 @@ from tests_async.db import get_connection
 
 async def main() -> None:
     start = time.perf_counter_ns()
-    all_bookings = []
 
     try:
         conn = await get_connection()
-        try:
-            all_bookings = await conn.fetch("SELECT * FROM bookings.bookings")
-        finally:
-            await conn.close()
+        all_bookings = await conn.fetch("SELECT * FROM bookings.bookings")
     except Exception as e:
         print(f'[ERROR] Test 5 failed: {e}')
         sys.exit(1)
+    finally:
+        await conn.close()
 
     elapsed = time.perf_counter_ns() - start
 

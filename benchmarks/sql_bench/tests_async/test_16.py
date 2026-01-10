@@ -12,8 +12,8 @@ def generate_book_ref(i: int) -> str:
 async def main() -> None:
     start = time.perf_counter_ns()
     refs = [generate_book_ref(i) for i in range(COUNT)]
-    conn = await get_connection()
     try:
+        conn = await get_connection()
         async with conn.transaction():
             await conn.execute(
                 """
@@ -25,7 +25,8 @@ async def main() -> None:
     except Exception as e:
         print(f'[ERROR] Test 16 failed: {e}')
         sys.exit(1)
-    await conn.close()
+    finally:
+        await conn.close()
     elapsed = time.perf_counter_ns() - start
 
     print(

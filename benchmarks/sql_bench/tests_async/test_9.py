@@ -8,29 +8,28 @@ def generate_book_ref(i: int) -> str:
 
 async def main() -> None:
     start = time.perf_counter_ns()
-    tickets_count = 0
 
     try:
         conn = await get_connection()
-        try:
-            await conn.fetchrow("""SELECT 
-                tickets.ticket_no, 
-                tickets.book_ref, 
-                tickets.passenger_id, 
-                tickets.passenger_name, 
-                tickets.outbound, 
-                bookings.book_ref, 
-                bookings.book_date, 
-                bookings.total_amount
-                FROM tickets INNER JOIN bookings ON 
-                (tickets.book_ref = bookings.book_ref) 
-                WHERE tickets.book_ref = $1""",
-                            generate_book_ref(1))
-        finally:
-            await conn.close()
+        await conn.fetchrow("""SELECT 
+            tickets.ticket_no, 
+            tickets.book_ref, 
+            tickets.passenger_id, 
+            tickets.passenger_name, 
+            tickets.outbound, 
+            bookings.book_ref, 
+            bookings.book_date, 
+            bookings.total_amount
+            FROM tickets INNER JOIN bookings ON 
+            (tickets.book_ref = bookings.book_ref) 
+            WHERE tickets.book_ref = $1""",
+                        generate_book_ref(1))
+
     except Exception as e:
         print(f'[ERROR] Test 9 failed: {e}')
         sys.exit(1)
+    finally:
+        await conn.close()
 
     elapsed = time.perf_counter_ns() - start
 

@@ -82,14 +82,14 @@ async def warm_up_single(conn: asyncpg.Connection, i: int) -> None:
 async def warm_up() -> None:
     try:
         conn = await get_connection()
-        try:
-            for i in range(COUNT):
-                await warm_up_single(conn, i)
-        finally:
-            await conn.close()
+        for i in range(COUNT):
+            await warm_up_single(conn, i)
+
     except Exception as e:
         print(f"[ERROR] Warm-up failed: {e}")
         sys.exit(1)
+    finally:
+        await conn.close()
 
     print("Warm-up done")
 

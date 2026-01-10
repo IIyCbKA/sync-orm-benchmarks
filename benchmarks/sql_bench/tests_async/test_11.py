@@ -24,25 +24,25 @@ async def main() -> None:
 
     try:
         conn = await get_connection()
-        try:
-            async with conn.transaction():
-                for i in range(COUNT):
-                    await conn.execute(
-                        """
-                        UPDATE bookings.bookings
-                        SET total_amount = $1,
-                            book_date = $2
-                        WHERE book_ref = $3
-                        """,
-                        get_new_amount(i),
-                        get_curr_date(),
-                        generate_book_ref(i)
-                    )
-        finally:
-            await conn.close()
+        async with conn.transaction():
+            for i in range(COUNT):
+                await conn.execute(
+                    """
+                    UPDATE bookings.bookings
+                    SET total_amount = $1,
+                        book_date = $2
+                    WHERE book_ref = $3
+                    """,
+                    get_new_amount(i),
+                    get_curr_date(),
+                    generate_book_ref(i)
+                )
     except Exception as e:
         print(f'[ERROR] Test 11 failed: {e}')
         sys.exit(1)
+    finally:
+        await conn.close()
+
 
     elapsed = time.perf_counter_ns() - start
     print(

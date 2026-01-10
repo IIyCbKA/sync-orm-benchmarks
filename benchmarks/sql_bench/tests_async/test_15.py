@@ -30,11 +30,11 @@ async def main() -> None:
         tasks = [delete_booking(pool, i) for i in range(COUNT)]
         await asyncio.gather(*tasks)
 
-        await pool.close()
-
     except Exception as e:
         print(f"[ERROR] Test 15 failed: {e}")
         sys.exit(1)
+    finally:
+        await pool.close()
 
     elapsed = time.perf_counter_ns() - start
     print(

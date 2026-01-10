@@ -17,8 +17,9 @@ async def main() -> None:
         sys.exit(1)
 
     start = time.perf_counter_ns()
-    conn = await get_connection()
+
     try:
+        conn = await get_connection()
         for book_ref in refs:
             async with conn.transaction():
                 await conn.execute(
@@ -32,7 +33,8 @@ async def main() -> None:
     except Exception as e:
         print(f"[ERROR] Test 17 failed (delete phase): {e}")
         sys.exit(1)
-    await conn.close()
+    finally:
+        await conn.close()
     elapsed = time.perf_counter_ns() - start
     print(
         f'Pure async SQL (asyncpg). Test 17. Nested delete. {COUNT} entries\n'

@@ -13,8 +13,8 @@ def generate_book_ref(i: int) -> str:
 
 async def main() -> None:
     start = time.perf_counter_ns()
-    conn = await get_connection()
     try:
+        conn = await get_connection()
         for i in range(COUNT):
             await conn.execute(
                 """
@@ -36,10 +36,12 @@ async def main() -> None:
                 'Nested update',
                 generate_book_ref(i)
             )
-        await conn.close()
+
     except Exception as e:
         print(f'[ERROR] Test 13 failed: {e}')
         sys.exit(1)
+    finally:
+        await conn.close()
 
     elapsed = time.perf_counter_ns() - start
 

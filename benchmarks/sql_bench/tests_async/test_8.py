@@ -8,20 +8,18 @@ def generate_book_ref(i: int) -> str:
 
 async def main() -> None:
     start = time.perf_counter_ns()
-    booking = None
 
     try:
         conn = await get_connection()
-        try:
-            booking = await conn.fetchrow(
-                "SELECT * FROM bookings.bookings WHERE book_ref = $1 LIMIT 1",
-                generate_book_ref(1)
-            )
-        finally:
-            await conn.close()
+        booking = await conn.fetchrow(
+            "SELECT * FROM bookings.bookings WHERE book_ref = $1 LIMIT 1",
+            generate_book_ref(1)
+        )
     except Exception as e:
         print(f'[ERROR] Test 8 failed: {e}')
         sys.exit(1)
+    finally:
+        await conn.close()
 
     elapsed = time.perf_counter_ns() - start
 

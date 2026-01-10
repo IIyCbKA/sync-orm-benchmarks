@@ -29,10 +29,13 @@ async def main() -> None:
                 """,
                 generate_book_ref(i)
             )
-        await conn.close()
+
     except Exception as e:
         print(f'[ERROR] Test 14 failed: {e}')
         sys.exit(1)
+
+    finally:
+        await conn.close()
 
     elapsed = time.perf_counter_ns() - start
     print(

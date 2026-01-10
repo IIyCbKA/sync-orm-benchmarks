@@ -20,10 +20,9 @@ def generate_amount(i: int) -> Decimal:
 
 async def main() -> None:
     start = time.perf_counter_ns()
-
-    conn = await get_connection()
-    for i in range(COUNT):
-        try:
+    try:
+        conn = await get_connection()
+        for i in range(COUNT):
             await conn.execute(
                 """
                 INSERT INTO bookings.bookings (book_ref, book_date, total_amount)
@@ -33,10 +32,11 @@ async def main() -> None:
                 datetime.now(UTC),
                 generate_amount(i),
             )
-        except Exception as e:
-            print(f'[ERROR] Test 1 failed: {e}')
-            sys.exit(1)
-    await conn.close()
+    except Exception as e:
+        print(f'[ERROR] Test 1 failed: {e}')
+        sys.exit(1)
+    finally:
+        await conn.close()
 
     elapsed = time.perf_counter_ns() - start
 

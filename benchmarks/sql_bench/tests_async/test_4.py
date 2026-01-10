@@ -32,37 +32,35 @@ async def main() -> None:
 
     try:
         conn = await get_connection()
-        try:
-            for i in range(COUNT):
-                 async with conn.transaction():
-                    booking_id = await conn.fetchval(
-                        """
-                        INSERT INTO bookings.bookings (book_ref, book_date, total_amount)
-                        VALUES ($1, $2, $3)
-                        RETURNING book_ref
-                        """,
-                        generate_book_ref(i),
-                        curr_date,
-                        generate_amount(i),
-                    )
-                    await conn.execute(
-                        """
-                        INSERT INTO bookings.tickets 
-                        (ticket_no, book_ref, passenger_id, passenger_name, outbound)
-                        VALUES ($1, $2, $3, $4, $5)
-                        """,
-                        generate_ticket_no(i),
-                        booking_id,
-                        generate_passenger_id(i),
-                        "Test",
-                        True,
-                    )
-        finally:
-            await conn.close()
+        for i in range(COUNT):
+             async with conn.transaction():
+                booking_id = await conn.fetchval(
+                    """
+                    INSERT INTO bookings.bookings (book_ref, book_date, total_amount)
+                    VALUES ($1, $2, $3)
+                    RETURNING book_ref
+                    """,
+                    generate_book_ref(i),
+                    curr_date,
+                    generate_amount(i),
+                )
+                await conn.execute(
+                    """
+                    INSERT INTO bookings.tickets 
+                    (ticket_no, book_ref, passenger_id, passenger_name, outbound)
+                    VALUES ($1, $2, $3, $4, $5)
+                    """,
+                    generate_ticket_no(i),
+                    booking_id,
+                    generate_passenger_id(i),
+                    "Test",
+                    True,
+                )
     except Exception as e:
         print(f'[ERROR] Test 4 failed: {e}')
         sys.exit(1)
-
+    finally:
+        await conn.close()
     elapsed = time.perf_counter_ns() - start
     print(
         f'Pure async SQL (asyncpg). Test 4. Nested create. {COUNT} entities\n'
