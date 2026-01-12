@@ -3,7 +3,7 @@ from decimal import Decimal
 import os
 import time
 import sys
-from tests_sync.db import get_connection
+from tests_sync.db import conn
 
 LIMIT = int(os.environ.get('LIMIT', '250'))
 OFFSET = int(os.environ.get('OFFSET', '500'))
@@ -17,18 +17,17 @@ def main() -> None:
     start = time.perf_counter_ns()
 
     try:
-        with get_connection() as conn:
-            with conn.cursor() as cur:
-                _ = cur.execute("""
-                    SELECT 
-                        bookings.book_ref, 
-                        bookings.book_date, 
-                        bookings.total_amount
-                    FROM bookings.bookings
-                    WHERE total_amount BETWEEN %s AND %s AND book_date >= %s
-                    ORDER BY total_amount
-                    LIMIT %s OFFSET %s
-                """, (amount_low, amount_high, date_from, LIMIT, OFFSET)).fetchall()
+        with conn.cursor() as cur:
+            _ = cur.execute("""
+                SELECT 
+                    bookings.book_ref, 
+                    bookings.book_date, 
+                    bookings.total_amount
+                FROM bookings.bookings
+                WHERE total_amount BETWEEN %s AND %s AND book_date >= %s
+                ORDER BY total_amount
+                LIMIT %s OFFSET %s
+            """, (amount_low, amount_high, date_from, LIMIT, OFFSET)).fetchall()
     except Exception as e:
         print(f'[ERROR] Test 10 failed: {e}')
         sys.exit(1)

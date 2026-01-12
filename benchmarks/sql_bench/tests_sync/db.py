@@ -1,5 +1,5 @@
-from contextlib import contextmanager
 from dotenv import load_dotenv
+import atexit
 import os
 import psycopg
 
@@ -16,10 +16,11 @@ CONNINFO = (
     f"host={DB_HOST} port={DB_PORT}"
 )
 
-@contextmanager
-def get_connection():
-    conn = psycopg.connect(CONNINFO, autocommit=True, prepare_threshold=0)
+conn = psycopg.connect(CONNINFO, autocommit=True, prepare_threshold=0)
+
+@atexit.register
+def _close():
     try:
-        yield conn
-    finally:
         conn.close()
+    except Exception:
+        pass

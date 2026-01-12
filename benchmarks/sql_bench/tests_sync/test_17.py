@@ -1,7 +1,7 @@
 import os
 import time
 import sys
-from tests_sync.db import get_connection
+from tests_sync.db import conn
 
 COUNT = int(os.environ.get('ITERATIONS', '2500'))
 
@@ -14,16 +14,15 @@ def main() -> None:
     try:
         refs = [generate_book_ref(i) for i in range(COUNT)]
         current_data = []
-        with get_connection() as conn:
-            with conn.cursor() as cur:
-                for ref in refs:
-                    tickets = [ticket[0] for ticket in cur.execute("""
-                        SELECT ticket_no
-                        FROM bookings.tickets
-                        WHERE book_ref = %s
-                    """, (ref,)).fetchall()]
+        with conn.cursor() as cur:
+            for ref in refs:
+                tickets = [ticket[0] for ticket in cur.execute("""
+                    SELECT ticket_no
+                    FROM bookings.tickets
+                    WHERE book_ref = %s
+                """, (ref,)).fetchall()]
 
-                    current_data.append((ref, tickets))
+                current_data.append((ref, tickets))
     except Exception as e:
         print(f'[ERROR] Test 17 failed (data preparation): {e}')
         sys.exit(1)
@@ -31,18 +30,17 @@ def main() -> None:
     start = time.perf_counter_ns()
 
     try:
-        with get_connection() as conn:
-            with conn.cursor() as cur:
-                for ref, tickets in current_data:
-                    with conn.transaction():
-                        for ticket_no in tickets:
-                            cur.execute("""
-                                DELETE FROM bookings.tickets WHERE ticket_no = %s
-                            """, (ticket_no,))
-
+        with conn.cursor() as cur:
+            for ref, tickets in current_data:
+                with conn.transaction():
+                    for ticket_no in tickets:
                         cur.execute("""
-                            DELETE FROM bookings.bookings WHERE book_ref = %s
-                        """, (ref,))
+                            DELETE FROM bookings.tickets WHERE ticket_no = %s
+                        """, (ticket_no,))
+
+                    cur.execute("""
+                        DELETE FROM bookings.bookings WHERE book_ref = %s
+                    """, (ref,))
     except Exception as e:
         print(f'[ERROR] Test 17 failed (delete phase): {e}')
         sys.exit(1)

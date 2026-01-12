@@ -4,7 +4,7 @@ from functools import lru_cache
 import os
 import time
 import sys
-from tests_sync.db import get_connection
+from tests_sync.db import conn
 
 COUNT = int(os.environ.get('ITERATIONS', '2500'))
 
@@ -27,14 +27,13 @@ def main() -> None:
     start = time.perf_counter_ns()
 
     try:
-        with get_connection() as conn:
-            with conn.cursor() as cur:
-                with conn.transaction():
-                    for i in range(COUNT):
-                        cur.execute("""
-                            INSERT INTO bookings.bookings (book_ref, book_date, total_amount)
-                            VALUES (%s, %s, %s)
-                        """, (generate_book_ref(i), get_curr_date(), generate_amount(i)))
+        with conn.cursor() as cur:
+            with conn.transaction():
+                for i in range(COUNT):
+                    cur.execute("""
+                        INSERT INTO bookings.bookings (book_ref, book_date, total_amount)
+                        VALUES (%s, %s, %s)
+                    """, (generate_book_ref(i), get_curr_date(), generate_amount(i)))
     except Exception as e:
         print(f'[ERROR] Test 2 failed: {e}')
         sys.exit(1)

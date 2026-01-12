@@ -1,28 +1,27 @@
 import time
 import sys
-from tests_sync.db import get_connection
+from tests_sync.db import conn
 
 
 def main() -> None:
     start = time.perf_counter_ns()
 
     try:
-        with get_connection() as conn:
-            with conn.cursor() as cur:
-                _ = cur.execute("""
-                    SELECT 
-                        tickets.ticket_no, 
-                        tickets.book_ref, 
-                        tickets.passenger_id, 
-                        tickets.passenger_name, 
-                        tickets.outbound, 
-                        bookings.book_ref, 
-                        bookings.book_date, 
-                        bookings.total_amount 
-                    FROM tickets 
-                    INNER JOIN bookings ON (tickets.book_ref = bookings.book_ref) 
-                    ORDER BY tickets.ticket_no LIMIT 1
-                """).fetchone()
+        with conn.cursor() as cur:
+            _ = cur.execute("""
+                SELECT 
+                    tickets.ticket_no, 
+                    tickets.book_ref, 
+                    tickets.passenger_id, 
+                    tickets.passenger_name, 
+                    tickets.outbound, 
+                    bookings.book_ref, 
+                    bookings.book_date, 
+                    bookings.total_amount 
+                FROM tickets 
+                INNER JOIN bookings ON (tickets.book_ref = bookings.book_ref) 
+                ORDER BY tickets.ticket_no LIMIT 1
+            """).fetchone()
     except Exception as e:
         print(f'[ERROR] Test 7 failed: {e}')
         sys.exit(1)

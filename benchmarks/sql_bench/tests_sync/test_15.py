@@ -1,7 +1,7 @@
 import os
 import time
 import sys
-from tests_sync.db import get_connection
+from tests_sync.db import conn
 
 COUNT = int(os.environ.get('ITERATIONS', '2500'))
 
@@ -15,14 +15,13 @@ def main() -> None:
     start = time.perf_counter_ns()
 
     try:
-        with get_connection() as conn:
-            with conn.cursor() as cur:
-                for ref in refs:
-                    cur.execute("""
-                        DELETE FROM bookings.bookings
-                        WHERE book_ref IN (%s)
-                    """, (ref,))
-                    conn.commit()
+        with conn.cursor() as cur:
+            for ref in refs:
+                cur.execute("""
+                    DELETE FROM bookings.bookings
+                    WHERE book_ref IN (%s)
+                """, (ref,))
+                conn.commit()
     except Exception as e:
         print(f'[ERROR] Test 15 failed: {e}')
         sys.exit(1)

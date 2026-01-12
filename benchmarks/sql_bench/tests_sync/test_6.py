@@ -1,21 +1,20 @@
 import time
 import sys
-from tests_sync.db import get_connection
+from tests_sync.db import conn
 
 def main() -> None:
     start = time.perf_counter_ns()
 
     try:
-        with get_connection() as conn:
-            with conn.cursor() as cur:
-                _ = cur.execute("""
-                    SELECT 
-                        bookings.book_ref, 
-                        bookings.book_date, 
-                        bookings.total_amount 
-                    FROM bookings.bookings 
-                    ORDER BY book_ref LIMIT 1
-                """).fetchone()
+        with conn.cursor() as cur:
+            _ = cur.execute("""
+                SELECT 
+                    bookings.book_ref, 
+                    bookings.book_date, 
+                    bookings.total_amount 
+                FROM bookings.bookings 
+                ORDER BY book_ref LIMIT 1
+            """).fetchone()
     except Exception as e:
         print(f'[ERROR] Test 6 failed: {e}')
         sys.exit(1)
