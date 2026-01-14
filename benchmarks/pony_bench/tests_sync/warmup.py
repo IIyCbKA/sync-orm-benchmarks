@@ -1,6 +1,6 @@
 from datetime import datetime, UTC
 from decimal import Decimal
-from pony.orm import db_session, commit
+from pony.orm import db_session, commit, flush
 from core.models import Booking, Ticket
 import os
 import sys
@@ -17,6 +17,7 @@ def warm_up() -> None:
           book_date=datetime.now(UTC),
           total_amount=Decimal('5.00')
         )
+        flush()
 
         t = Ticket(
           ticket_no=f'warm{i:09d}',
@@ -25,15 +26,17 @@ def warm_up() -> None:
           passenger_name='Warm',
           outbound=True
         )
+        flush()
 
         _ = Booking.get(book_ref=f'warm{i:02d}')
         __ = Ticket.get(ticket_no=f'warm{i:09d}')
 
         b.total_amount = Decimal('2.00')
-
         t.passenger_name = 'WarmUpdate'
+        flush()
 
         t.delete()
+        flush()
         b.delete()
         commit()
   except Exception as e:

@@ -1,6 +1,6 @@
 from decimal import Decimal
 from datetime import datetime, UTC
-from sqlalchemy import select
+from sqlalchemy import select, flush
 import os
 
 from core.models import Booking, Ticket
@@ -20,6 +20,7 @@ def warmup() -> None:
                         total_amount=Decimal('5.00')
                     )
                     session.add(b)
+                    session.flush()
 
                     t = Ticket(
                         ticket_no=f'warm{i:09d}',
@@ -29,6 +30,7 @@ def warmup() -> None:
                         outbound=True
                     )
                     session.add(t)
+                    session.flush()
 
                     _ = session.scalar(
                         select(Booking).where(Booking.book_ref == f'warm{i:02d}')
@@ -39,8 +41,10 @@ def warmup() -> None:
 
                     b.total_amount = Decimal('2.00')
                     t.passenger_name = 'WarmUpdate'
+                    session.flush()
 
                     session.delete(t)
+                    session.flush()
                     session.delete(b)
     except Exception as e:
         print(e)
