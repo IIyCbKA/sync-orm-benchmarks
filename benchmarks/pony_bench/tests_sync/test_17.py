@@ -27,7 +27,7 @@ def main() -> None:
     for booking in bookings:
       start = time.perf_counter_ns()
 
-      Ticket.select(lambda t: t.book_ref.book_ref == booking.book_ref).delete(bulk=True)
+      Ticket.select(lambda t: t.book_ref == booking).delete(bulk=True)
       booking.delete()
       commit()
 
