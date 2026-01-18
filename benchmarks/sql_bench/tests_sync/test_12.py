@@ -1,6 +1,3 @@
-from datetime import datetime, UTC
-from decimal import Decimal
-from functools import lru_cache
 import os
 import statistics
 import sys
@@ -9,58 +6,43 @@ from tests_sync.db import conn
 
 COUNT = int(os.environ.get('ITERATIONS', '2500'))
 
+
 def generate_book_ref(i: int) -> str:
-    return f'a{i:05d}'
-
-
-@lru_cache(1)
-def get_curr_date():
-    return datetime.now(UTC)
+  return f'a{i:05d}'
 
 
 def main() -> None:
-    try:
-        refs = [generate_book_ref(i) for i in range(COUNT)]
-        current_values = []
-        with conn.cursor() as cur:
-            for ref in refs:
-                total_amount = cur.execute("""
-                    SELECT total_amount 
-                    FROM bookings.bookings
-                    WHERE book_ref = %s
-                """, (ref,)).fetchone()[0]
-                current_values.append((ref, total_amount))
-    except Exception as e:
-        print(f'[ERROR] Test 12 failed (data preparation): {e}')
-        sys.exit(1)
+  try:
+    refs = [generate_book_ref(i) for i in range(COUNT)]
+  except Exception as e:
+    print(f'[ERROR] Test 12 failed (data preparation): {e}')
+    sys.exit(1)
 
-    results: list[int] = []
+  results: list[int] = []
 
-    try:
-        with conn.cursor() as cur:
-            for ref, old_amount in current_values:
-                start = time.perf_counter_ns()
+  try:
+    for ref in refs:
+      start = time.perf_counter_ns()
 
-                cur.execute("""
-                    UPDATE bookings.bookings
-                    SET total_amount = %s,
-                        book_date = %s
-                    WHERE book_ref = %s
-                """, (old_amount / Decimal('10.00'), get_curr_date(), ref))
+      with conn.cursor() as cur:
+        cur.execute("""
+          DELETE FROM bookings.bookings
+          WHERE book_ref IN (%s)
+        """, (ref,))
 
-                end = time.perf_counter_ns()
-                results.append(end - start)
-    except Exception as e:
-        print(f'[ERROR] Test 12 failed (update phase): {e}')
-        sys.exit(1)
+      end = time.perf_counter_ns()
+      results.append(end - start)
+  except Exception as e:
+    print(f'[ERROR] Test 12 failed (delete phase): {e}')
+    sys.exit(1)
 
-    elapsed = statistics.median(results)
+  elapsed = statistics.median(results)
 
-    print(
-        f'Pure SQL (psycopg3). Test 12. Single update\n'
-        f'elapsed_ns={elapsed}'
-    )
+  print(
+    f'Pure SQL (psycopg3). Test 12. Single delete\n'
+    f'elapsed_ns={elapsed}'
+  )
 
 
 if __name__ == '__main__':
-    main()
+  main()

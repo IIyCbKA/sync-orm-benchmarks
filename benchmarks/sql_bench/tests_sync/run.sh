@@ -18,10 +18,10 @@ python -m test_2
 # Test 3 -> Bulk create
 python -m test_3
 
-# Test 4 -> Nested create
+# Test 4 -> Find all
 python -m test_4
 
-# Test 5 -> Find all
+# Test 5 -> Find first
 python -m test_5
 
 # Test 6 -> Find first
@@ -50,12 +50,3 @@ python -m test_13
 
 # Test 14 -> Transaction delete
 python -m test_14
-
-# Test 15 -> Single delete
-python -m test_15
-
-# Test 16 -> Bulk delete
-python -m test_16
-
-# Test 17 -> Nested delete
-python -m test_17
