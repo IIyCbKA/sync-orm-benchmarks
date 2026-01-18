@@ -37,15 +37,19 @@ def main() -> None:
     start = time.perf_counter_ns()
 
     try:
+        params = [
+            (old_amount / Decimal('10.00'), get_curr_date(), book_ref)
+            for book_ref, old_amount in current_values
+        ]
+
         with conn.cursor() as cur:
             with conn.transaction():
-                for ref, old_amount in current_values:
-                    cur.execute("""
-                        UPDATE bookings.bookings
-                        SET total_amount = %s,
-                            book_date = %s
-                        WHERE book_ref = %s
-                    """, (old_amount / Decimal('10.00'), get_curr_date(), ref))
+                cur.executemany("""
+                    UPDATE bookings.bookings
+                    SET total_amount = %s,
+                        book_date    = %s
+                    WHERE book_ref = %s
+                """, params)
     except Exception as e:
         print(f'[ERROR] Test 11 failed (update phase): {e}')
         sys.exit(1)

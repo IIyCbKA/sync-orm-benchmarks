@@ -27,12 +27,13 @@ def main() -> None:
     start = time.perf_counter_ns()
 
     try:
+        params = [
+            (generate_book_ref(i), get_curr_date(), generate_amount(i))
+            for i in range(COUNT)
+        ]
+
         with conn.cursor() as cur:
             with conn.transaction():
-                params = [
-                    (generate_book_ref(i), get_curr_date(), generate_amount(i))
-                    for i in range(COUNT)
-                ]
                 cur.executemany("""
                     INSERT INTO bookings.bookings (book_ref, book_date, total_amount)
                     VALUES (%s, %s, %s)
