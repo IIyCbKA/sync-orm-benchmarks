@@ -1,62 +1,56 @@
-from datetime import datetime, timedelta, UTC
+from datetime import datetime, UTC
 from decimal import Decimal
-from sqlalchemy import select, asc
-from sqlalchemy.sql.functions import session_user
+from functools import lru_cache
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+from tests_sync.db import SessionLocal
+from core.models import Booking
 import os
-import statistics
 import sys
 import time
 
-from tests_sync.db import SessionLocal
-from core.models import Booking
-
-LIMIT = int(os.environ.get('LIMIT', '250'))
-OFFSET = int(os.environ.get('OFFSET', '500'))
-SELECT_REPEATS = int(os.environ.get('SELECT_REPEATS', '75'))
-
-NOW = datetime.now(UTC)
-DATE_FROM = NOW - timedelta(days=30)
-AMOUNT_LOW = Decimal('50.00')
-AMOUNT_HIGH = Decimal('500.00')
+COUNT = int(os.environ.get('ITERATIONS', '2500'))
 
 
-def select_iteration() -> int:
-    start = time.perf_counter_ns()
+def generate_book_ref(i: int) -> str:
+  return f'a{i:05d}'
 
-    with SessionLocal() as session:
-        stmt = (
-            select(Booking)
-            .where(
-                Booking.total_amount.between(AMOUNT_LOW, AMOUNT_HIGH),
-                Booking.book_date >= DATE_FROM
-            )
-            .order_by(asc(Booking.total_amount))
-            .limit(LIMIT)
-            .offset(OFFSET)
-        )
-        _ = session.scalars(stmt).all()
 
-    end = time.perf_counter_ns()
-    return end - start
+@lru_cache(1)
+def get_curr_date():
+  return datetime.now(UTC)
 
 
 def main() -> None:
-    results: list[int] = []
+  with SessionLocal() as session:
+    try:
+      refs = [generate_book_ref(i) for i in range(COUNT)]
+      stmt = select(Booking).where(Booking.book_ref.in_(refs))
+      bookings = session.execute(stmt).scalars().all()
+      session.commit()
+    except Exception as e:
+      print(f'[ERROR] Test 10 failed (data preparation): {e}')
+      sys.exit(1)
+
+    start = time.perf_counter_ns()
 
     try:
-        for _ in range(SELECT_REPEATS):
-            results.append(select_iteration())
+      with session.begin():
+        for booking in bookings:
+          booking.total_amount /= Decimal('10.00')
+          booking.book_date = get_curr_date()
     except Exception as e:
-        print(f'[ERROR] Test 10 failed: {e}')
-        sys.exit(1)
+      print(f'[ERROR] Test 10 failed (update phase): {e}')
+      sys.exit(1)
 
-    elapsed = statistics.median(results)
+    end = time.perf_counter_ns()
+    elapsed = end - start
 
     print(
-        f'SQLAlchemy (sync). Test 10. Filter, paginate & sort\n'
-        f'elapsed_ns={elapsed}'
+      f'SQLAlchemy (sync). Test 10. Transaction update. {COUNT} entries\n'
+      f'elapsed_ns={elapsed}'
     )
 
 
 if __name__ == '__main__':
-    main()
+  main()

@@ -13,51 +13,52 @@ COUNT = int(os.environ.get('ITERATIONS', '2500'))
 
 
 def generate_book_ref(i: int) -> str:
-    return f'a{i:05d}'
+  return f'a{i:05d}'
 
 
 def generate_amount(i: int) -> Decimal:
-    return Decimal(i + 500) / Decimal('10.00')
+  value = i + 500
+  return Decimal(value) / Decimal('10.00')
 
 
 @lru_cache(1)
 def get_curr_date():
-    return datetime.now(UTC)
+  return datetime.now(UTC)
 
 
 def create_iteration(i: int) -> int:
-    start = time.perf_counter_ns()
+  start = time.perf_counter_ns()
 
-    with SessionLocal() as session:
-        booking = Booking(
-            book_ref=generate_book_ref(i),
-            book_date=get_curr_date(),
-            total_amount=generate_amount(i),
-        )
-        session.add(booking)
-        session.commit()
+  with SessionLocal() as session:
+    booking = Booking(
+      book_ref=generate_book_ref(i),
+      book_date=get_curr_date(),
+      total_amount=generate_amount(i),
+    )
+    session.add(booking)
+    session.commit()
 
-    end = time.perf_counter_ns()
-    return end - start
+  end = time.perf_counter_ns()
+  return end - start
 
 
 def main() -> None:
-    results: list[int] = []
+  results: list[int] = []
 
-    try:
-        for i in range(COUNT):
-            results.append(create_iteration(i))
-    except Exception as e:
-        print(f'[ERROR] Test 1 failed: {e}')
-        sys.exit(1)
+  try:
+    for i in range(COUNT):
+      results.append(create_iteration(i))
+  except Exception as e:
+    print(f'[ERROR] Test 1 failed: {e}')
+    sys.exit(1)
 
-    elapsed = statistics.median(results)
+  elapsed = statistics.median(results)
 
-    print(
-        f'SQLAlchemy (sync). Test 1. Single create\n'
-        f'elapsed_ns={elapsed}'
-    )
+  print(
+    f'SQLAlchemy (sync). Test 1. Single create\n'
+    f'elapsed_ns={elapsed}'
+  )
 
 
 if __name__ == '__main__':
-    main()
+  main()

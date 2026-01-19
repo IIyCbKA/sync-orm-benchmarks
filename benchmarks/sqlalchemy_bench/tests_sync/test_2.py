@@ -1,8 +1,8 @@
-import sys
 from datetime import datetime, UTC
 from decimal import Decimal
 from functools import lru_cache
 import os
+import sys
 import time
 
 from tests_sync.db import SessionLocal
@@ -12,43 +12,43 @@ COUNT = int(os.environ.get('ITERATIONS', '2500'))
 
 
 def generate_book_ref(i: int) -> str:
-    return f'b{i:05d}'
+  return f'b{i:05d}'
 
 
 def generate_amount(i: int) -> Decimal:
-    value = i + 500
-    return Decimal(value) / Decimal('10.00')
+  value = i + 500
+  return Decimal(value) / Decimal('10.00')
 
 
 @lru_cache(1)
 def get_curr_date():
-    return datetime.now(UTC)
+  return datetime.now(UTC)
 
 
 def main() -> None:
-    start = time.perf_counter_ns()
+  start = time.perf_counter_ns()
 
-    try:
-        with SessionLocal() as session:
-            with session.begin():
-                for i in range(COUNT):
-                    session.add(Booking(
-                        book_ref=generate_book_ref(i),
-                        book_date=get_curr_date(),
-                        total_amount=generate_amount(i),
-                    ))
-    except Exception as e:
-        print(f'[ERROR] Test 2 failed: {e}')
-        sys.exit(1)
+  try:
+    with SessionLocal() as session:
+      with session.begin():
+        for i in range(COUNT):
+          session.add(Booking(
+            book_ref=generate_book_ref(i),
+            book_date=get_curr_date(),
+            total_amount=generate_amount(i),
+          ))
+  except Exception as e:
+    print(f'[ERROR] Test 2 failed: {e}')
+    sys.exit(1)
 
-    end = time.perf_counter_ns()
-    elapsed = end - start
+  end = time.perf_counter_ns()
+  elapsed = end - start
 
-    print(
-        f'SQLAlchemy (sync). Test 2. Transaction create. {COUNT} entities\n'
-        f'elapsed_ns={elapsed}'
-    )
+  print(
+    f'SQLAlchemy (sync). Test 2. Transaction create. {COUNT} entities\n'
+    f'elapsed_ns={elapsed}'
+  )
 
 
 if __name__ == '__main__':
-    main()
+  main()

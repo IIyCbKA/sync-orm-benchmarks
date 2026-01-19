@@ -1,4 +1,5 @@
-from sqlalchemy import select, asc
+from sqlalchemy import select
+from sqlalchemy.orm import Session
 from tests_sync.db import SessionLocal
 from core.models import Booking
 import os
@@ -9,35 +10,37 @@ import time
 SELECT_REPEATS = int(os.environ.get('SELECT_REPEATS', '75'))
 
 
+def generate_book_ref(i: int) -> str:
+  return f'a{i:05d}'
+
+
 def select_iteration() -> int:
-    start = time.perf_counter_ns()
+  start = time.perf_counter_ns()
 
-    with SessionLocal() as session:
-        _ = session.scalars(
-            select(Booking).order_by(asc(Booking.book_ref)).limit(1)
-        ).first()
+  with SessionLocal() as session:
+    _ = session.get(Booking, generate_book_ref(1))
 
-    end = time.perf_counter_ns()
-    return end - start
+  end = time.perf_counter_ns()
+  return end - start
 
 
 def main() -> None:
-    results: list[int] = []
+  results: list[int] = []
 
-    try:
-        for _ in range(SELECT_REPEATS):
-            results.append(select_iteration())
-    except Exception as e:
-        print(f'[ERROR] Test 6 failed: {e}')
-        sys.exit(1)
+  try:
+    for _ in range(SELECT_REPEATS):
+      results.append(select_iteration())
+  except Exception as e:
+    print(f'[ERROR] Test 6 failed: {e}')
+    sys.exit(1)
 
-    elapsed = statistics.median(results)
+  elapsed = statistics.median(results)
 
-    print(
-        f'SQLAlchemy (sync). Test 6. Find first\n'
-        f'elapsed_ns={elapsed}'
-    )
+  print(
+    f'SQLAlchemy (sync). Test 6. Find unique record\n'
+    f'elapsed_ns={elapsed}'
+  )
 
 
 if __name__ == '__main__':
-    main()
+  main()
