@@ -1,4 +1,3 @@
-from datetime import datetime, timedelta, UTC
 from decimal import Decimal
 from sqlalchemy import select, asc
 import os
@@ -13,8 +12,6 @@ LIMIT = int(os.environ.get('LIMIT', '250'))
 OFFSET = int(os.environ.get('OFFSET', '500'))
 SELECT_REPEATS = int(os.environ.get('SELECT_REPEATS', '75'))
 
-NOW = datetime.now(UTC)
-DATE_FROM = NOW - timedelta(days=30)
 AMOUNT_LOW = Decimal('50.00')
 AMOUNT_HIGH = Decimal('500.00')
 
@@ -25,10 +22,7 @@ def select_iteration() -> int:
 
     stmt = (
       select(Booking)
-        .where(
-          Booking.total_amount.between(AMOUNT_LOW, AMOUNT_HIGH),
-          Booking.book_date >= DATE_FROM
-        )
+        .where(Booking.total_amount.between(AMOUNT_LOW, AMOUNT_HIGH))
         .order_by(asc(Booking.total_amount))
         .limit(LIMIT)
         .offset(OFFSET)

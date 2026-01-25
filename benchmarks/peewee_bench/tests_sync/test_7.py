@@ -13,7 +13,7 @@ def select_iteration() -> int:
   with db.connection_context():
     start = time.perf_counter_ns()
 
-    _ = list(Ticket
+    query = (Ticket
       .select(
         Ticket.ticket_no,
         Ticket.book_ref,
@@ -24,9 +24,10 @@ def select_iteration() -> int:
         Booking.book_date,
         Booking.total_amount,
       )
-    .join(Booking, on=(Ticket.book_ref == Booking.book_ref))
-    .order_by(Ticket.ticket_no)
-    .limit(LIMIT))
+      .join(Booking, on=(Ticket.book_ref == Booking.book_ref))
+      .order_by(Ticket.ticket_no)
+      .limit(LIMIT))
+    _ = list(query.tuples())
 
     end = time.perf_counter_ns()
 

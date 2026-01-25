@@ -18,7 +18,19 @@ SELECT_REPEATS = int(os.environ.get('SELECT_REPEATS', '75'))
 def select_iteration() -> int:
   start = time.perf_counter_ns()
 
-  _ = list(Ticket.objects.select_related('book_ref').order_by('ticket_no')[:LIMIT])
+  _ = list(
+    Ticket.objects
+      .values_list(
+        'ticket_no',
+        'book_ref',
+        'passenger_id',
+        'passenger_name',
+        'outbound',
+        'book_ref__book_ref',
+        'book_ref__book_date',
+        'book_ref__total_amount',
+    ).order_by('ticket_no')[:LIMIT]
+  )
 
   end = time.perf_counter_ns()
   return end - start

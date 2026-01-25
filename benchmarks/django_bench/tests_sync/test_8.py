@@ -1,4 +1,3 @@
-from datetime import timedelta
 from decimal import Decimal
 import os
 import statistics
@@ -18,8 +17,6 @@ LIMIT = int(os.environ.get('LIMIT', '250'))
 OFFSET = int(os.environ.get('OFFSET', '500'))
 SELECT_REPEATS = int(os.environ.get('SELECT_REPEATS', '75'))
 
-NOW = timezone.now()
-DATE_FROM = NOW - timedelta(days=30)
 AMOUNT_LOW = Decimal('50.00')
 AMOUNT_HIGH = Decimal('500.00')
 
@@ -29,8 +26,7 @@ def select_iteration() -> int:
 
   _ = list(Booking.objects.filter(
     total_amount__gte=AMOUNT_LOW,
-    total_amount__lte=AMOUNT_HIGH,
-    book_date__gte=DATE_FROM
+    total_amount__lte=AMOUNT_HIGH
   ).order_by('total_amount')[OFFSET:OFFSET + LIMIT])
 
   end = time.perf_counter_ns()
