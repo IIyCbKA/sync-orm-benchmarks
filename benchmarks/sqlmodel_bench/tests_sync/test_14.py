@@ -19,18 +19,19 @@ def main() -> None:
     print(f'[ERROR] Test 14 failed (data preparation): {e}')
     sys.exit(1)
 
-  start = time.perf_counter_ns()
-
   try:
     with SessionLocal() as session:
+      start = time.perf_counter_ns()
+
       stmt = delete(Booking).where(Booking.book_ref.in_(refs))
       session.execute(stmt)
       session.commit()
+
+      end = time.perf_counter_ns()
   except Exception as e:
     print(f'[ERROR] Test 14 failed (delete phase): {e}')
     sys.exit(1)
 
-  end = time.perf_counter_ns()
   elapsed = end - start
 
   print(

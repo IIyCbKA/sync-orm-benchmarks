@@ -11,6 +11,9 @@ from core.models import Booking
 from django.db import transaction
 from django.utils import timezone
 
+from django.db import connection
+connection.ensure_connection()
+
 COUNT = int(os.environ.get('ITERATIONS', '2500'))
 
 
@@ -29,9 +32,9 @@ def get_curr_date():
 
 
 def main() -> None:
-  start = time.perf_counter_ns()
-
   try:
+    start = time.perf_counter_ns()
+
     with transaction.atomic():
       for i in range(COUNT):
         Booking.objects.create(
@@ -39,11 +42,12 @@ def main() -> None:
           book_date=get_curr_date(),
           total_amount=generate_amount(i),
         )
+
+    end = time.perf_counter_ns()
   except Exception as e:
     print(f'[ERROR] Test 2 failed: {e}')
     sys.exit(1)
 
-  end = time.perf_counter_ns()
   elapsed = end - start
 
   print(

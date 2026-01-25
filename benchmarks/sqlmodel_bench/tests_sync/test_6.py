@@ -1,3 +1,4 @@
+from sqlalchemy import select
 from tests_sync.database import SessionLocal
 from core.models import Booking
 import os
@@ -13,12 +14,15 @@ def generate_book_ref(i: int) -> str:
 
 
 def select_iteration() -> int:
-  start = time.perf_counter_ns()
-
   with SessionLocal() as session:
-    _ = session.get(Booking, generate_book_ref(1))
+    start = time.perf_counter_ns()
 
-  end = time.perf_counter_ns()
+    _ = session.scalar(
+      select(Booking).where(Booking.book_ref == generate_book_ref(1))
+    )
+
+    end = time.perf_counter_ns()
+
   return end - start
 
 

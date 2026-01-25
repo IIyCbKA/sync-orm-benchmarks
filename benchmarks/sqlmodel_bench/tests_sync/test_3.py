@@ -26,25 +26,26 @@ def get_curr_date():
 
 
 def main() -> None:
-  start = time.perf_counter_ns()
-
   try:
-    objs = [
-      Booking(
-        book_ref=generate_book_ref(i),
-        book_date=get_curr_date(),
-        total_amount=generate_amount(i),
-      )
-      for i in range(COUNT)
-    ]
-
     with SessionLocal() as session:
+      start = time.perf_counter_ns()
+
+      objs = [
+        Booking(
+          book_ref=generate_book_ref(i),
+          book_date=get_curr_date(),
+          total_amount=generate_amount(i),
+        ) for i in range(COUNT)
+      ]
+
       session.bulk_save_objects(objs)
+      session.commit()
+
+      end = time.perf_counter_ns()
   except Exception as e:
     print(f'[ERROR] Test 3 failed: {e}')
     sys.exit(1)
 
-  end = time.perf_counter_ns()
   elapsed = end - start
 
   print(

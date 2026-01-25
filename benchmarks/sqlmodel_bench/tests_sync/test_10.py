@@ -31,24 +31,25 @@ def main() -> None:
       print(f'[ERROR] Test 10 failed (data preparation): {e}')
       sys.exit(1)
 
-    start = time.perf_counter_ns()
-
     try:
+      start = time.perf_counter_ns()
+
       with session.begin():
         for booking in bookings:
           booking.total_amount /= Decimal('10.00')
           booking.book_date = get_curr_date()
+
+      end = time.perf_counter_ns()
     except Exception as e:
       print(f'[ERROR] Test 10 failed (update phase): {e}')
       sys.exit(1)
 
-    end = time.perf_counter_ns()
-    elapsed = end - start
+  elapsed = end - start
 
-    print(
-      f'SQLModel (sync). Test 10. Transaction update. {COUNT} entries\n'
-      f'elapsed_ns={elapsed}'
-    )
+  print(
+    f'SQLModel (sync). Test 10. Transaction update. {COUNT} entries\n'
+    f'elapsed_ns={elapsed}'
+  )
 
 
 if __name__ == '__main__':

@@ -8,6 +8,9 @@ django.setup()
 
 from core.models import Ticket
 
+from django.db import connection
+connection.ensure_connection()
+
 LIMIT = int(os.environ.get('LIMIT', '250'))
 SELECT_REPEATS = int(os.environ.get('SELECT_REPEATS', '75'))
 

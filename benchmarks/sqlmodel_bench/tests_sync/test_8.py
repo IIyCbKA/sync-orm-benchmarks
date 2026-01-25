@@ -20,9 +20,9 @@ AMOUNT_HIGH = Decimal('500.00')
 
 
 def select_iteration() -> int:
-  start = time.perf_counter_ns()
-
   with SessionLocal() as session:
+    start = time.perf_counter_ns()
+
     stmt = (
       select(Booking)
         .where(
@@ -35,7 +35,8 @@ def select_iteration() -> int:
     )
     _ = session.scalars(stmt).all()
 
-  end = time.perf_counter_ns()
+    end = time.perf_counter_ns()
+
   return end - start
 
 

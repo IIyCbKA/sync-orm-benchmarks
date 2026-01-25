@@ -7,6 +7,9 @@ django.setup()
 
 from core.models import Booking
 
+from django.db import connection
+connection.ensure_connection()
+
 COUNT = int(os.environ.get('ITERATIONS', '2500'))
 
 
@@ -21,15 +24,16 @@ def main() -> None:
     print(f'[ERROR] Test 14 failed (data preparation): {e}')
     sys.exit(1)
 
-  start = time.perf_counter_ns()
-
   try:
+    start = time.perf_counter_ns()
+
     Booking.objects.filter(book_ref__in=refs).delete()
+
+    end = time.perf_counter_ns()
   except Exception as e:
     print(f'[ERROR] Test 14 failed (delete phase): {e}')
     sys.exit(1)
 
-  end = time.perf_counter_ns()
   elapsed = end - start
 
   print(

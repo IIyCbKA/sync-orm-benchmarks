@@ -11,6 +11,9 @@ from core.models import Booking
 from django.db.models import F
 from django.utils import timezone
 
+from django.db import connection
+connection.ensure_connection()
+
 COUNT = int(os.environ.get('ITERATIONS', '2500'))
 
 
@@ -30,18 +33,19 @@ def main() -> None:
     print(f'[ERROR] Test 11 failed (data preparation): {e}')
     sys.exit(1)
 
-  start = time.perf_counter_ns()
-
   try:
+    start = time.perf_counter_ns()
+
     Booking.objects.filter(book_ref__in=refs).update(
       total_amount=F('total_amount') + Decimal('10.00'),
       book_date=get_curr_date(),
     )
+
+    end = time.perf_counter_ns()
   except Exception as e:
     print(f'[ERROR] Test 11 failed (update phase): {e}')
     sys.exit(1)
 
-  end = time.perf_counter_ns()
   elapsed = end - start
 
   print(

@@ -11,6 +11,9 @@ django.setup()
 from core.models import Booking
 from django.utils import timezone
 
+from django.db import connection
+connection.ensure_connection()
+
 COUNT = int(os.environ.get('ITERATIONS', '2500'))
 
 

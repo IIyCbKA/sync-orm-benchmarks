@@ -21,39 +21,39 @@ def get_curr_date():
   return datetime.now(UTC)
 
 
-def main() -> None:
+def update_iteration(i: int) -> int:
   with SessionLocal() as session:
-    try:
-      refs = [generate_book_ref(i) for i in range(COUNT)]
-      stmt = select(Booking).where(Booking.book_ref.in_(refs))
-      bookings = session.execute(stmt).scalars().all()
-      session.commit()
-    except Exception as e:
-      print(f'[ERROR] Test 9 failed (data preparation): {e}')
-      sys.exit(1)
-
-    results: list[int] = []
-
-    try:
-      for booking in bookings:
-        start = time.perf_counter_ns()
-
-        booking.total_amount /= Decimal('10.00')
-        booking.book_date = get_curr_date()
-        session.commit()
-
-        end = time.perf_counter_ns()
-        results.append(end - start)
-    except Exception as e:
-      print(f'[ERROR] Test 9 failed (update phase): {e}')
-      sys.exit(1)
-
-    elapsed = statistics.median(results)
-
-    print(
-      f'SQLModel (sync). Test 9. Single update\n'
-      f'elapsed_ns={elapsed}'
+    booking = session.scalar(
+      select(Booking).where(Booking.book_ref == generate_book_ref(i))
     )
+
+    start = time.perf_counter_ns()
+
+    booking.total_amount /= Decimal('10.00')
+    booking.book_date = get_curr_date()
+    session.commit()
+
+    end = time.perf_counter_ns()
+
+  return end - start
+
+
+def main() -> None:
+  results: list[int] = []
+
+  try:
+    for i in range(COUNT):
+      results.append(update_iteration(i))
+  except Exception as e:
+    print(f'[ERROR] Test 9 failed: {e}')
+    sys.exit(1)
+
+  elapsed = statistics.median(results)
+
+  print(
+    f'SQLModel (sync). Test 9. Single update\n'
+    f'elapsed_ns={elapsed}'
+  )
 
 
 if __name__ == '__main__':

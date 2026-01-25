@@ -11,6 +11,9 @@ django.setup()
 from core.models import Booking
 from django.utils import timezone
 
+from django.db import connection
+connection.ensure_connection()
+
 LIMIT = int(os.environ.get('LIMIT', '250'))
 OFFSET = int(os.environ.get('OFFSET', '500'))
 SELECT_REPEATS = int(os.environ.get('SELECT_REPEATS', '75'))

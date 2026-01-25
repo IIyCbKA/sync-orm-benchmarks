@@ -11,6 +11,9 @@ django.setup()
 from core.models import Booking
 from django.utils import timezone
 
+from django.db import connection
+connection.ensure_connection()
+
 COUNT = int(os.environ.get('ITERATIONS', '2500'))
 
 
@@ -23,28 +26,27 @@ def get_curr_date():
   return timezone.now()
 
 
-def main() -> None:
-  try:
-    refs = [generate_book_ref(i) for i in range(COUNT)]
-    bookings = list(Booking.objects.filter(book_ref__in=refs))
-  except Exception as e:
-    print(f'[ERROR] Test 9 failed (data preparation): {e}')
-    sys.exit(1)
+def update_iteration(i: int) -> int:
+  booking = Booking.objects.get(pk=generate_book_ref(i))
 
+  start = time.perf_counter_ns()
+
+  booking.total_amount /= Decimal('10.00')
+  booking.book_date = get_curr_date()
+  booking.save(update_fields=['total_amount', 'book_date'])
+
+  end = time.perf_counter_ns()
+  return end - start
+
+
+def main() -> None:
   results: list[int] = []
 
   try:
-    for booking in bookings:
-      start = time.perf_counter_ns()
-
-      booking.total_amount /= Decimal('10.00')
-      booking.book_date = get_curr_date()
-      booking.save(update_fields=['total_amount', 'book_date'])
-
-      end = time.perf_counter_ns()
-      results.append(end - start)
+    for i in range(COUNT):
+      results.append(update_iteration(i))
   except Exception as e:
-    print(f'[ERROR] Test 9 failed (update phase): {e}')
+    print(f'[ERROR] Test 9 failed: {e}')
     sys.exit(1)
 
   elapsed = statistics.median(results)

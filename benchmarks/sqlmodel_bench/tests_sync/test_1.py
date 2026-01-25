@@ -27,9 +27,9 @@ def get_curr_date():
 
 
 def create_iteration(i: int) -> int:
-  start = time.perf_counter_ns()
-
   with SessionLocal() as session:
+    start = time.perf_counter_ns()
+
     booking = Booking(
       book_ref=generate_book_ref(i),
       book_date=get_curr_date(),
@@ -38,7 +38,8 @@ def create_iteration(i: int) -> int:
     session.add(booking)
     session.commit()
 
-  end = time.perf_counter_ns()
+    end = time.perf_counter_ns()
+
   return end - start
 
 

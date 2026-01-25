@@ -11,9 +11,9 @@ SELECT_REPEATS = int(os.environ.get('SELECT_REPEATS', '75'))
 
 
 def select_iteration() -> int:
-  start = time.perf_counter_ns()
-
   with SessionLocal() as session:
+    start = time.perf_counter_ns()
+
     stmt = (
       select(
         Ticket.ticket_no,
@@ -31,7 +31,8 @@ def select_iteration() -> int:
     )
     _ = session.execute(stmt).all()
 
-  end = time.perf_counter_ns()
+    end = time.perf_counter_ns()
+
   return end - start
 
 
