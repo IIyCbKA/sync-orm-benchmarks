@@ -37,12 +37,12 @@ RUN pip install --no-cache-dir --no-index --find-links /wheels \
     rm -rf /wheels
 
 COPY . .
-RUN chmod +x /sqlmodel_bench/tests_sync/run.sh
+RUN chmod +x /sqlmodel_bench/tests/run.sh
 
 RUN printf '%s\n' '#!/bin/sh' \
     'set -e' \
     '' \
-    'exec /sqlmodel_bench/tests_sync/run.sh' > /entrypoint.sh \
+    'exec /sqlmodel_bench/tests/run.sh' > /entrypoint.sh \
 && chmod +x /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]

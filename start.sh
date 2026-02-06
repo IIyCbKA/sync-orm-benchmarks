@@ -35,16 +35,7 @@ declare -A MAP=(
   ["sqlmodel"]="./benchmarks/sqlmodel_bench"
 )
 
-declare -A MODES_MAP=(
-  ["django"]="sync async"
-  ["peewee"]="sync"
-  ["pony"]="sync"
-  ["sqlalchemy"]="sync async"
-  ["sqlmodel"]="sync"
-)
-
 NAME="${1:-}"
-MODE="${2:-sync}"
 if [ -z "$NAME" ]; then
   echo "Usage: $0 <orm-name>"
   exit 1
@@ -56,24 +47,8 @@ if [ -z "$CONTEXT" ]; then
   exit 2
 fi
 
-ALLOWED="${MODES_MAP[$NAME]:-sync}"
-
-ok=0
-for m in $ALLOWED; do
-  if [ "$m" = "$MODE" ]; then
-    ok=1
-    break
-  fi
-done
-
-if [ "$ok" -ne 1 ]; then
-  echo "ERROR: unknown mode: '$MODE' for ORM '$NAME'. Available: $ALLOWED" >&2
-  exit 3
-fi
-
 export RUNNER_BUILD_CONTEXT="$CONTEXT"
 export RUNNER_NAME="$NAME"
-export RUNNER_COMMAND="$MODE"
 
 ensure_golden_volume() {
   if docker volume inspect "$POSTGRES_GOLDEN_VOLUME" >/dev/null 2>&1; then
@@ -111,7 +86,7 @@ ensure_golden_volume() {
     docker logs "$init_ctr" >&2 || true
     docker stop "$init_ctr" >/dev/null 2>&1 || true
     docker rm "$init_ctr" >/dev/null 2>&1 || true
-    exit 4
+    exit 3
   fi
 
   docker stop "$init_ctr" >/dev/null
@@ -143,7 +118,7 @@ recreate_run_volume_from_golden() {
 
 
 echo "Using compose command: $DC"
-echo "Starting '$NAME' (mode: $MODE) with context '$CONTEXT' ..."
+echo "Starting '$NAME' with context '$CONTEXT' ..."
 echo "Golden volume: $POSTGRES_GOLDEN_VOLUME"
 echo "Run volume: $POSTGRES_RUN_VOLUME"
 

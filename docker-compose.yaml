@@ -37,7 +37,6 @@ services:
       LIMIT: ${LIMIT}
       WARMUP_ITERATIONS: ${WARMUP_ITERATIONS}
       SELECT_REPEATS: ${SELECT_REPEATS}
-    command: ${RUNNER_COMMAND:-sync}
     networks:
       - root
 

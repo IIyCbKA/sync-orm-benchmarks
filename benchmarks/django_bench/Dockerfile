@@ -37,23 +37,12 @@ RUN pip install --no-cache-dir --no-index --find-links /wheels \
     rm -rf /wheels
 
 COPY . .
-RUN chmod +x /django_bench/tests_sync/run.sh
-RUN chmod +x /django_bench/tests_async/run.sh
+RUN chmod +x /django_bench/tests/run.sh
 
 RUN printf '%s\n' '#!/bin/sh' \
     'set -e' \
     '' \
-    'case "$1" in' \
-    '  sync)' \
-    '    exec /django_bench/tests_sync/run.sh' \
-    '    ;;' \
-    '  async)' \
-    '    exec /django_bench/tests_async/run.sh' \
-    '    ;;' \
-    '  *)' \
-    '    exec /django_bench/tests_sync/run.sh ' \
-    '    ;;' \
-    'esac' > /entrypoint.sh \
+    'exec /django_bench/tests/run.sh' > /entrypoint.sh \
 && chmod +x /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]

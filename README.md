@@ -1,7 +1,7 @@
-Python ORMs performance bench [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/IIyCbKA/sql-orm-benchmarks/blob/main/LICENSE) [![Python](https://img.shields.io/badge/Python-3.12-blue)](https://www.python.org/downloads/release/python-3120/) [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue)](https://www.postgresql.org/)
+Python sync ORMs performance bench [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/IIyCbKA/sql-orm-benchmarks/blob/main/LICENSE) [![Python](https://img.shields.io/badge/Python-3.12-blue)](https://www.python.org/downloads/release/python-3120/) [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-blue)](https://www.postgresql.org/)
 ==============
 
-A reproducible benchmarking project to compare popular Python ORMs on PostgreSQL.
+A reproducible benchmarking project to compare popular sync Python ORMs on PostgreSQL.
 
 The primary database schema used in this project is based on the demonstration 
 schema provided by Postgres Professional: https://postgrespro.ru/education/demodb. 
@@ -38,8 +38,7 @@ https://hub.docker.com/r/denistred/sql-orm-bench-db.
 
 For convenience (it's recommended), ready-to-use `start.sh`, `stop.sh` and 
 `logs.sh` scripts are included in the repository root. Simply run them from 
-the repo root. Specify the ORM name (required) and the mode name 
-(optional) for `start.sh`.
+the repo root. Specify the ORM name (required) for `start.sh`.
 
 Each benchmark prints its result to stdout. These stdout lines are captured 
 by Docker and can be viewed via the runner container logs.
@@ -48,7 +47,7 @@ Usage example:
 ```bash
 # from repo root
 # create and run containers
-./start.sh <ORM> <mode>
+./start.sh <ORM>
 
 # follow live runner logs
 ./logs.sh
@@ -64,11 +63,6 @@ name from this list for `./start.sh`):
 - pony
 - sqlalchemy
 - sqlmodel
-
-List of modes for ORMs (use the mode name from this list for `./start.sh`, 
-with selected ORM. Default is sync):
-- sync: django | pony | sqlalchemy | peewee | sqlmodel
-- async (coming soon): django | sqlalchemy
 
 **IMPORTANT NOTE:** On each fresh run of `docker-compose` (this is done 
 in `stop.sh`) you must clear all runtime volumes from previous runs.
@@ -104,7 +98,7 @@ Therefore, it is recommended to run *exclusively* the ready `start.sh`.
 
 ---
 
-- Stack: Python 3.12, PostgreSQL, Psycopg 2.9.11/3.3.2.
-- ORMs included: Django, Peewee, Pony, SQLAlchemy.
+- Stack: Python 3.12, PostgreSQL 17, Psycopg 2.9.11/3.3.2.
+- ORMs included: Django, Peewee, Pony, SQLAlchemy, SQLModel.
 - Authors: student research team.
 - License: MIT.

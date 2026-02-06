@@ -37,12 +37,12 @@ RUN pip install --no-cache-dir --no-index --find-links /wheels \
     rm -rf /wheels
 
 COPY . .
-RUN chmod +x /peewee_bench/tests_sync/run.sh
+RUN chmod +x /peewee_bench/tests/run.sh
 
 RUN printf '%s\n' '#!/bin/sh' \
     'set -e' \
     '' \
-    'exec /peewee_bench/tests_sync/run.sh' > /entrypoint.sh \
+    'exec /peewee_bench/tests/run.sh' > /entrypoint.sh \
 && chmod +x /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
