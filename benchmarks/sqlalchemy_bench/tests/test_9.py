@@ -2,7 +2,7 @@ from datetime import datetime, UTC
 from decimal import Decimal
 from functools import lru_cache
 from sqlalchemy import select
-from tests.db import SessionLocal
+from core.database import SessionLocal
 from core.models import Booking
 import os
 import statistics

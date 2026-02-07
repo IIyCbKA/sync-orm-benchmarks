@@ -1,12 +1,11 @@
 from decimal import Decimal
 from sqlalchemy import select, asc
+from core.database import SessionLocal
+from core.models import Booking
 import os
 import statistics
 import sys
 import time
-
-from tests.database import SessionLocal
-from core.models import Booking
 
 LIMIT = int(os.environ.get('LIMIT', '250'))
 OFFSET = int(os.environ.get('OFFSET', '500'))

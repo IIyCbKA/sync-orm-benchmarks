@@ -1,5 +1,5 @@
 from sqlalchemy import select
-from tests.database import SessionLocal
+from core.database import SessionLocal
 from core.models import Booking, Ticket
 import os
 import statistics

@@ -1,12 +1,11 @@
 from datetime import datetime, UTC
 from decimal import Decimal
 from functools import lru_cache
+from core.database import SessionLocal
+from core.models import Booking
 import os
 import sys
 import time
-
-from tests.database import SessionLocal
-from core.models import Booking
 
 COUNT = int(os.environ.get('ITERATIONS', '2500'))
 

@@ -1,8 +1,8 @@
 from decimal import Decimal
 from datetime import datetime, UTC
 from sqlalchemy import select
+from core.database import SessionLocal
 from core.models import Booking, Ticket
-from tests.database import SessionLocal
 import os
 import sys
 
