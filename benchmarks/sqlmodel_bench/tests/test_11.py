@@ -50,7 +50,7 @@ def main() -> None:
   elapsed = end - start
 
   print(
-    f'SQLModel (sync). Test 11. Bulk update. {COUNT} entries\n'
+    f'SQLModel. Test 11. Bulk update of {COUNT} objects\n'
     f'elapsed_ns={elapsed}'
   )
 

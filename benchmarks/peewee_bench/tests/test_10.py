@@ -45,7 +45,7 @@ def main() -> None:
   elapsed = end - start
 
   print(
-    f'Peewee ORM (sync). Test 10. Transaction update. {COUNT} entities\n'
+    f'Peewee. Test 10. Update of {COUNT} objects in a transaction\n'
     f'elapsed_ns={elapsed}'
   )
 

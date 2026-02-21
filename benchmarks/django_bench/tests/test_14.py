@@ -37,7 +37,7 @@ def main() -> None:
   elapsed = end - start
 
   print(
-    f'Django ORM (sync). Test 14. Bulk delete. {COUNT} entries\n'
+    f'Django. Test 14. Bulk deletion of {COUNT} objects\n'
     f'elapsed_ns={elapsed}'
   )
 

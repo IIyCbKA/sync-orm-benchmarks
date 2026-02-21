@@ -51,7 +51,7 @@ def main() -> None:
   elapsed = end - start
 
   print(
-    f'Django ORM (sync). Test 10. Transaction update. {COUNT} entries\n'
+    f'Django. Test 10. Update of {COUNT} objects in a transaction\n'
     f'elapsed_ns={elapsed}'
   )
 

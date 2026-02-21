@@ -81,20 +81,20 @@ Therefore, it is recommended to run *exclusively* the ready `start.sh`.
 
 ### Tests:
 
-1. Single create
-2. Transaction create
-3. Bulk create
-4. Find all
-5. Find first
-6. Find unique record
-7. Find with limit and include parent
-8. Find with filter, offset pagination and sort
-9. Single update
-10. Transaction update
-11. Bulk update
-12. Single delete 
-13. Transaction delete
-14. Bulk delete
+1. Single object creation
+2. Creation objects in a transaction
+3. Bulk creation of objects
+4. Retrieval of all records
+5. Retrieval of the first record
+6. Retrieval by primary key
+7. Retrieval with limit including attributes of related record
+8. Filtered retrieval with offset pagination and sorting
+9. Single object update
+10. Update of objects in a transaction
+11. Bulk update of objects
+12. Single object deletion
+13. Deletion of objects in a transaction
+14. Bulk deletion of objects
 
 ---
 

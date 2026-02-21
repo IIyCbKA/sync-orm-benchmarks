@@ -32,7 +32,7 @@ def main() -> None:
   elapsed = end - start
 
   print(
-    f'Peewee ORM (sync). Test 14. Bulk delete. {COUNT} entities\n'
+    f'Peewee. Test 14. Bulk deletion of {COUNT} objects\n'
     f'elapsed_ns={elapsed}'
   )
 

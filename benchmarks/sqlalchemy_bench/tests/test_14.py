@@ -35,7 +35,7 @@ def main() -> None:
   elapsed = end - start
 
   print(
-    f'SQLAlchemy (sync). Test 14. Bulk delete. {COUNT} entries\n'
+    f'SQLAlchemy. Test 14. Bulk deletion of {COUNT} objects\n'
     f'elapsed_ns={elapsed}'
   )
 

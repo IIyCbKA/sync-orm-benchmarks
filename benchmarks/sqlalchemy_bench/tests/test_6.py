@@ -39,7 +39,7 @@ def main() -> None:
   elapsed = statistics.median(results)
 
   print(
-    f'SQLAlchemy (sync). Test 6. Find unique record\n'
+    f'SQLAlchemy. Test 6. Retrieval by primary key\n'
     f'elapsed_ns={elapsed}'
   )
 

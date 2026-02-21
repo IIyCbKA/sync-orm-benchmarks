@@ -55,7 +55,7 @@ def main() -> None:
   elapsed = statistics.median(results)
 
   print(
-    f'SQLModel (sync). Test 1. Single create\n'
+    f'SQLModel. Test 1. Single object creation\n'
     f'elapsed_ns={elapsed}'
   )
 

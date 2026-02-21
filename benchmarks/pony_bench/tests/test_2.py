@@ -46,7 +46,7 @@ def main() -> None:
   elapsed = end - start
 
   print(
-    f'PonyORM. Test 2. Transaction create. {COUNT} entities\n'
+    f'Pony. Test 2. Creation {COUNT} objects in a transaction\n'
     f'elapsed_ns={elapsed}'
   )
 

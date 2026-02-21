@@ -48,7 +48,7 @@ def main() -> None:
   elapsed = end - start
 
   print(
-    f'SQLAlchemy (sync). Test 3. Bulk create. {COUNT} entities\n'
+    f'SQLAlchemy. Test 3. Bulk creation of {COUNT} objects\n'
     f'elapsed_ns={elapsed}'
   )
 

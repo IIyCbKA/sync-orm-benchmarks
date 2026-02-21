@@ -38,7 +38,7 @@ def main() -> None:
   elapsed = end - start
 
   print(
-    f'SQLModel (sync). Test 13. Transaction delete. {COUNT} entries\n'
+    f'SQLModel. Test 13. Deletion of {COUNT} objects in a transaction\n'
     f'elapsed_ns={elapsed}'
   )
 

@@ -53,7 +53,7 @@ def main() -> None:
   elapsed = statistics.median(results)
 
   print(
-    f'Peewee ORM (sync). Test 1. Single create. {COUNT} entities\n'
+    f'Peewee. Test 1. Single object creation\n'
     f'elapsed_ns={elapsed}'
   )
 

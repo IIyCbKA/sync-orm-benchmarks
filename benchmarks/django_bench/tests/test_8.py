@@ -46,7 +46,7 @@ def main() -> None:
   elapsed = statistics.median(results)
 
   print(
-    f'Django ORM (sync). Test 8. Find with filter, offset pagination and sort\n'
+    f'Django. Test 8. Filtered retrieval with offset pagination and sorting\n'
     f'elapsed_ns={elapsed}'
   )
 

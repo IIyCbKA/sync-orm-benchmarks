@@ -39,7 +39,7 @@ def main() -> None:
   elapsed = statistics.median(results)
 
   print(
-    f'SQLModel (sync). Test 6. Find unique record\n'
+    f'SQLModel. Test 6. Retrieval by primary key\n'
     f'elapsed_ns={elapsed}'
   )
 

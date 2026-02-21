@@ -32,7 +32,7 @@ def main() -> None:
   elapsed = statistics.median(results)
 
   print(
-    f'Peewee ORM (sync). Test 4. Find all\n'
+    f'Peewee. Test 4. Retrieval of all records\n'
     f'elapsed_ns={elapsed}'
   )
 

@@ -47,7 +47,7 @@ def warm_up() -> None:
     print(f'[ERROR] Warm-up failed: {e}')
     sys.exit(1)
 
-  print('Warm-up done')
+  print('Django warm-up done')
 
 
 if __name__ == '__main__':

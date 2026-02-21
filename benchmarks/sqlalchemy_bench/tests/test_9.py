@@ -51,7 +51,7 @@ def main() -> None:
   elapsed = statistics.median(results)
 
   print(
-    f'SQLAlchemy (sync). Test 9. Single update\n'
+    f'SQLAlchemy. Test 9. Single object update\n'
     f'elapsed_ns={elapsed}'
   )
 

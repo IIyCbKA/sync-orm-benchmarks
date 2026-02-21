@@ -40,7 +40,7 @@ def main() -> None:
   elapsed = statistics.median(results)
 
   print(
-    f'PonyORM. Test 8. Find with filter, offset pagination and sort\n'
+    f'Pony. Test 8. Filtered retrieval with offset pagination and sorting\n'
     f'elapsed_ns={elapsed}'
   )
 

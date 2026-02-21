@@ -49,7 +49,7 @@ def main() -> None:
   elapsed = statistics.median(results)
 
   print(
-    f'SQLModel (sync). Test 7. Find with limit and include parent\n'
+    f'SQLModel. Test 7. Retrieval with limit including attributes of related record\n'
     f'elapsed_ns={elapsed}'
   )
 

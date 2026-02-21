@@ -47,7 +47,7 @@ def main() -> None:
   elapsed = end - start
 
   print(
-    f'SQLModel (sync). Test 10. Transaction update. {COUNT} entries\n'
+    f'SQLModel. Test 10. Update of {COUNT} objects in a transaction\n'
     f'elapsed_ns={elapsed}'
   )
 

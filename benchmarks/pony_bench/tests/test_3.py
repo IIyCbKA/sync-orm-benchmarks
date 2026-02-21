@@ -27,7 +27,7 @@ def get_curr_date():
 def main() -> None:
   """
   Pony ORM does not support true bulk insert as of 16.01.2026.
-  Therefore, Test 3 "Bulk create" is skipped for Pony,
+  Therefore, Test 3 "Bulk creation of objects" is skipped for Pony,
   and we mark it with a dash in benchmarks.
 
   However, to ensure fair comparison in subsequent tests (update, delete, etc.),
@@ -45,12 +45,12 @@ def main() -> None:
       )
     commit()
   except Exception as e:
-    print(f'[ERROR] Dataset create failed (instead of bulk create): {e}')
+    print(f'[ERROR] Dataset create failed (instead of bulk creation): {e}')
     sys.exit(1)
 
   print(
-    f'PonyORM. Test 3. Bulk create. {COUNT} entities\n'
-    f'Bulk create is not supported'
+    f'Pony. Test 3. Bulk creation of {COUNT} objects\n'
+    f'Bulk creation is not supported'
   )
 
 

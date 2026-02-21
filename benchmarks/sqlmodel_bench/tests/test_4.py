@@ -33,7 +33,7 @@ def main() -> None:
   elapsed = statistics.median(results)
 
   print(
-    f'SQLModel (sync). Test 4. Find all\n'
+    f'SQLModel. Test 4. Retrieval of all records\n'
     f'elapsed_ns={elapsed}'
   )
 

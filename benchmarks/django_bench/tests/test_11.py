@@ -49,7 +49,7 @@ def main() -> None:
   elapsed = end - start
 
   print(
-    f'Django ORM (sync). Test 11. Bulk update. {COUNT} entities\n'
+    f'Django. Test 11. Bulk update of {COUNT} objects\n'
     f'elapsed_ns={elapsed}'
   )
 

@@ -52,7 +52,7 @@ def main() -> None:
   elapsed = statistics.median(results)
 
   print(
-    f'Django ORM (sync). Test 9. Single update\n'
+    f'Django. Test 9. Single object update\n'
     f'elapsed_ns={elapsed}'
   )
 

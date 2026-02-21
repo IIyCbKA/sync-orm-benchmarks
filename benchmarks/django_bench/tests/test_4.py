@@ -36,7 +36,7 @@ def main() -> None:
   elapsed = statistics.median(results)
 
   print(
-    f'Django ORM (sync). Test 4. Find all\n'
+    f'Django. Test 4. Retrieval of all records\n'
     f'elapsed_ns={elapsed}'
   )
 

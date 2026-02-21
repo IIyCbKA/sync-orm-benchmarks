@@ -35,7 +35,7 @@ def main() -> None:
   elapsed = end - start
 
   print(
-    f'PonyORM. Test 13. Transaction delete. {COUNT} entries\n'
+    f'Pony. Test 13. Deletion of {COUNT} objects in a transaction\n'
     f'elapsed_ns={elapsed}'
   )
 

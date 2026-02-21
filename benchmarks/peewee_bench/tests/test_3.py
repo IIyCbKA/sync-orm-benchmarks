@@ -47,7 +47,7 @@ def main() -> None:
   elapsed = end - start
 
   print(
-    f'Peewee ORM (sync). Test 3. Bulk create. {COUNT} entities\n'
+    f'Peewee. Test 3. Bulk creation of {COUNT} objects\n'
     f'elapsed_ns={elapsed}'
   )
 

@@ -47,7 +47,7 @@ def main() -> None:
   elapsed = statistics.median(results)
 
   print(
-    f'PonyORM. Test 9. Single update\n'
+    f'Pony. Test 9. Single object update\n'
     f'elapsed_ns={elapsed}'
   )
 

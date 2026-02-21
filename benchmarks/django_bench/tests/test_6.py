@@ -40,7 +40,7 @@ def main() -> None:
   elapsed = statistics.median(results)
 
   print(
-    f'Django ORM (sync). Test 6. Find unique record\n'
+    f'Django. Test 6. Retrieval by primary key\n'
     f'elapsed_ns={elapsed}'
   )
 
