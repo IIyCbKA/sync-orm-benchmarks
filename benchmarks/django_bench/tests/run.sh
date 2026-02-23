@@ -14,7 +14,7 @@ python -m warmup
 # Test 1 -> Single object creation
 python -m test_1
 
-# Test 2 -> Creation objects in a transaction
+# Test 2 -> Creation of objects in a transaction
 python -m test_2
 
 # Test 3 -> Bulk creation of objects

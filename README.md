@@ -82,7 +82,7 @@ Therefore, it is recommended to run *exclusively* the ready `start.sh`.
 ### Tests:
 
 1. Single object creation
-2. Creation objects in a transaction
+2. Creation of objects in a transaction
 3. Bulk creation of objects
 4. Retrieval of all records
 5. Retrieval of the first record

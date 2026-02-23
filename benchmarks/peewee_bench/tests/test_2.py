@@ -45,7 +45,7 @@ def main() -> None:
   elapsed = end - start
 
   print(
-    f'Peewee. Test 2. Creation {COUNT} objects in a transaction\n'
+    f'Peewee. Test 2. Creation of {COUNT} objects in a transaction\n'
     f'elapsed_ns={elapsed}'
   )
 
