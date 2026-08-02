@@ -36,46 +36,41 @@ https://hub.docker.com/r/denistred/sql-orm-bench-db.
 
 ### Running
 
-For convenience (it's recommended), ready-to-use `start.sh`, `stop.sh` and 
-`logs.sh` scripts are included in the repository root. Simply run them from 
-the repo root. Specify the ORM name (required) for `start.sh`.
+For convenience, a ready-to-use `runner.sh` script is included in the repository root. 
+It accepts the ORM name and the number of benchmark cycles. Every cycle
+starts from a fresh runtime copy of the golden database, follows the runner
+output and then removes the containers, networks and runtime volumes.
 
-Each benchmark prints its result to stdout. These stdout lines are captured 
-by Docker and can be viewed via the runner container logs.
+Each benchmark prints its result to stdout. The runner container logs remain
+visible in the terminal and are also saved to `logs.txt`. This file is created
+next to `runner.sh` and cleared before the first cycle.
 
 Usage example:
 ```bash
 # from repo root
-# create and run containers
-./start.sh <ORM>
-
-# follow live runner logs
-./logs.sh
-
-# stop and remove containers, networks and runtime volumes
-./stop.sh
+# run the selected ORM benchmark ten times
+./runner.sh <ORM> 10
 ```
 
-List of existing ORMs available for start/stop/logs (use the ORM 
-name from this list for `./start.sh`):
+List of existing ORMs (use the ORM name from this list for `./runner.sh`):
 - django
 - peewee
 - pony
 - sqlalchemy
 - sqlmodel
 
-**IMPORTANT NOTE:** On each fresh run of `docker-compose` (this is done 
-in `stop.sh`) you must clear all runtime volumes from previous runs.
+**IMPORTANT NOTE:** After every cycle, `runner.sh` stops and removes the
+containers, networks and runtime volumes before starting the next cycle.
 
-**IMPORTANT NOTE:** For the correct functioning of the `start.sh` script, you 
+**IMPORTANT NOTE:** For the correct functioning of the `runner.sh` script, you
 need to have a ready-to-use `.env` in the project root with correct values.
 
-**IMPORTANT NOTE:** The `start.sh` script contains some complex logic: it checks 
-that a volume with the original database (golden) exists, and if necessary 
-deploys the dump into it. Then it cleans up the runtime volume from previous 
-runs if needed and creates a new runtime copy of the original database for the 
-current run. It also passes a subset of necessary arguments to docker-compose. 
-Therefore, it is recommended to run *exclusively* the ready `start.sh`.
+**IMPORTANT NOTE:** The `runner.sh` script contains some complex logic: it checks
+that a volume with the original database (golden) exists, and if necessary
+deploys the dump into it. Then it cleans up the runtime volume from previous
+runs if needed and creates a new runtime copy of the original database for the
+current run. It also passes a subset of necessary arguments to docker-compose.
+Therefore, it is recommended to run *exclusively* the ready `runner.sh`.
 
 ---
 

@@ -1,10 +1,19 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
+
 if [ ! -f .env ]; then
   echo "ERROR: .env not found in $(pwd)." >&2
   exit 1
 fi
+
+if [ ! -f docker-compose.yaml ]; then
+  echo "ERROR: compose file not found in current dir." >&2
+  exit 2
+fi
+COMPOSE_FILE="docker-compose.yaml"
 
 set -a
 source .env
@@ -17,38 +26,45 @@ echo ">>> Loaded .env"
 : "${POSTGRES_RUN_VOLUME:?ERROR: POSTGRES_RUN_VOLUME not set in .env}"
 : "${POSTGRES_GOLDEN_VOLUME:?ERROR: POSTGRES_GOLDEN_VOLUME not set in .env}"
 
-DC=""
 if command -v docker-compose >/dev/null 2>&1; then
-  DC="docker-compose"
+  DC=("docker-compose")
 elif command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
-  DC="docker compose"
+  DC=("docker" "compose")
 else
   echo "ERROR: neither 'docker-compose' nor 'docker compose' found in PATH." >&2
   exit 1
 fi
 
-declare -A MAP=(
-  ["django"]="./benchmarks/django_bench"
-  ["peewee"]="./benchmarks/peewee_bench"
-  ["pony"]="./benchmarks/pony_bench"
-  ["sqlalchemy"]="./benchmarks/sqlalchemy_bench"
-  ["sqlmodel"]="./benchmarks/sqlmodel_bench"
-)
-
 NAME="${1:-}"
-if [ -z "$NAME" ]; then
-  echo "Usage: $0 <orm-name>"
+CYCLES="${2:-}"
+
+if [ "$#" -ne 2 ]; then
+  echo "Usage: $0 <orm-name> <cycles>" >&2
   exit 1
 fi
 
-CONTEXT="${MAP[$NAME]:-}"
-if [ -z "$CONTEXT" ]; then
-  echo "ERROR: unknown ORM name: '$NAME'. Available: ${!MAP[@]}" >&2
+case "$NAME" in
+  django) CONTEXT="./benchmarks/django_bench" ;;
+  peewee) CONTEXT="./benchmarks/peewee_bench" ;;
+  pony) CONTEXT="./benchmarks/pony_bench" ;;
+  sqlalchemy) CONTEXT="./benchmarks/sqlalchemy_bench" ;;
+  sqlmodel) CONTEXT="./benchmarks/sqlmodel_bench" ;;
+  *)
+    echo "ERROR: unknown ORM name: '$NAME'. Available: django peewee pony sqlalchemy sqlmodel" >&2
+    exit 2
+    ;;
+esac
+
+if ! [[ "$CYCLES" =~ ^[1-9][0-9]*$ ]]; then
+  echo "ERROR: cycles must be a positive integer, got: '$CYCLES'." >&2
   exit 2
 fi
 
 export RUNNER_BUILD_CONTEXT="$CONTEXT"
 export RUNNER_NAME="$NAME"
+
+LOG_FILE="$SCRIPT_DIR/logs.txt"
+: > "$LOG_FILE"
 
 ensure_golden_volume() {
   if docker volume inspect "$POSTGRES_GOLDEN_VOLUME" >/dev/null 2>&1; then
@@ -95,7 +111,6 @@ ensure_golden_volume() {
   echo ">>> Golden volume initialized."
 }
 
-
 recreate_run_volume_from_golden() {
   echo ">>> Preparing run volume: $POSTGRES_RUN_VOLUME"
 
@@ -116,17 +131,60 @@ recreate_run_volume_from_golden() {
   echo ">>> Run volume populated."
 }
 
+CLEANUP_REQUIRED=0
 
-echo "Using compose command: $DC"
-echo "Starting '$NAME' with context '$CONTEXT' ..."
+stop_and_remove() {
+  echo ">>> Stopping and removing"
+  echo ">>> Command: ${DC[*]} -f $COMPOSE_FILE down -v --remove-orphans"
+
+  "${DC[@]}" -f "$COMPOSE_FILE" down -v --remove-orphans
+  CLEANUP_REQUIRED=0
+
+  echo ">>> Done: containers, networks and declared volumes removed."
+}
+
+cleanup_on_exit() {
+  local status=$?
+  trap - EXIT
+
+  if [ "$CLEANUP_REQUIRED" -eq 1 ]; then
+    echo ">>> Cleaning up after interrupted or failed iteration..." >&2
+    "${DC[@]}" -f "$COMPOSE_FILE" down -v --remove-orphans || true
+  fi
+
+  exit "$status"
+}
+
+trap cleanup_on_exit EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+
+echo "Using compose command: ${DC[*]}"
+echo "Running '$NAME' with context '$CONTEXT' for $CYCLES cycle(s) ..."
 echo "Golden volume: $POSTGRES_GOLDEN_VOLUME"
 echo "Run volume: $POSTGRES_RUN_VOLUME"
+echo "Log file: $LOG_FILE"
 
-ensure_golden_volume
-recreate_run_volume_from_golden
+for ((iteration = 1; iteration <= CYCLES; iteration++)); do
+  echo
+  echo ">>> Iteration $iteration of $CYCLES"
 
-$DC -f docker-compose.yaml up -d --build
+  ensure_golden_volume
+  CLEANUP_REQUIRED=1
+  recreate_run_volume_from_golden
+
+  "${DC[@]}" -f "$COMPOSE_FILE" up -d --build
+
+  if [ "$iteration" -gt 1 ]; then
+    printf '\n' >> "$LOG_FILE"
+  fi
+  printf 'iteration %d\n' "$iteration" | tee -a "$LOG_FILE"
+
+  echo ">>> Following logs for runner service..."
+  "${DC[@]}" -f "$COMPOSE_FILE" logs -f runner 2>&1 | tee -a "$LOG_FILE"
+
+  stop_and_remove
+done
 
 echo
-echo "Done. To follow logs: ./logs.sh"
-echo "To stop and remove containers+run volumes: ./stop.sh"
+echo ">>> Completed $CYCLES cycle(s). Logs saved to $LOG_FILE"
