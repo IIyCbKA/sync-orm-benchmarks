@@ -67,7 +67,7 @@ ensure_golden_volume() {
     -e POSTGRES_DB="${POSTGRES_DB}" \
     -e POSTGRES_USER="${POSTGRES_USER}" \
     -e POSTGRES_PASSWORD="${POSTGRES_PASSWORD}" \
-    -v "$POSTGRES_GOLDEN_VOLUME":/var/lib/postgresql/data:rw \
+    -v "$POSTGRES_GOLDEN_VOLUME":/var/lib/postgresql:rw \
     denistred/sql-orm-bench-db:latest >/dev/null
 
   echo ">>> Waiting for restore log line..."

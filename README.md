@@ -1,4 +1,4 @@
-Python sync ORMs performance bench [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/IIyCbKA/sql-orm-benchmarks/blob/main/LICENSE) [![Python](https://img.shields.io/badge/Python-3.12-blue)](https://www.python.org/downloads/release/python-3120/) [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-blue)](https://www.postgresql.org/)
+Python sync ORMs performance bench [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/IIyCbKA/sql-orm-benchmarks/blob/main/LICENSE) [![Python](https://img.shields.io/badge/Python-3.12-blue)](https://www.python.org/downloads/release/python-3120/) [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-18-blue)](https://www.postgresql.org/)
 ==============
 
 A reproducible benchmarking project to compare popular sync Python ORMs on PostgreSQL.
@@ -98,7 +98,7 @@ Therefore, it is recommended to run *exclusively* the ready `start.sh`.
 
 ---
 
-- Stack: Python 3.12, PostgreSQL 17, Psycopg 2.9.11/3.3.2.
+- Stack: Python 3.12, PostgreSQL 18, Psycopg 2.9.11/3.3.2.
 - ORMs included: Django, Peewee, Pony, SQLAlchemy, SQLModel.
 - Authors: student research team.
 - License: MIT.
