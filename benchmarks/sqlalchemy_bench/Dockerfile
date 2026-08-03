@@ -12,7 +12,7 @@ RUN apt-get update && \
       libpq-dev && \
     rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt ./
+COPY benchmarks/sqlalchemy_bench/requirements.txt ./
 RUN pip install --upgrade pip && \
     pip wheel --no-cache-dir --wheel-dir /wheels -r requirements.txt
 
@@ -31,12 +31,13 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /sqlalchemy_bench
 
 COPY --from=builder /wheels /wheels
-COPY requirements.txt ./
+COPY benchmarks/sqlalchemy_bench/requirements.txt ./
 RUN pip install --no-cache-dir --no-index --find-links /wheels \
       -r requirements.txt && \
     rm -rf /wheels
 
-COPY . .
+COPY benchmarks/sqlalchemy_bench .
+COPY pg_manager.py ./
 RUN chmod +x /sqlalchemy_bench/tests/run.sh
 
 RUN printf '%s\n' '#!/bin/sh' \

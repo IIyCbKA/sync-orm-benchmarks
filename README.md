@@ -45,6 +45,31 @@ Each benchmark prints its result to stdout. The runner container logs remain
 visible in the terminal and are also saved to `logs.txt`. This file is created
 next to `runner.sh` and cleared before the first cycle.
 
+Every supported test reports both client-observed and PostgreSQL-attributed
+timings:
+
+- `elapsed_ns` is the existing wall-clock measurement around the ORM operation.
+- `pg_query_ns` is PostgreSQL planning plus execution time from
+  `pg_stat_statements`.
+- `pg_wal_ns` is WAL write and fsync time for the measured PostgreSQL backend.
+- `pg_elapsed_ns` is `pg_query_ns + pg_wal_ns`.
+- `pg_calls` is the number of statements, including explicit transaction
+  commands tracked by PostgreSQL.
+
+The PostgreSQL window includes the closing `COMMIT` or `ROLLBACK`, including
+transactions created implicitly by an ORM. Probe queries run outside the
+wall-clock window and are excluded from the PostgreSQL totals. Run only one
+benchmark client against the database at a time because `pg_stat_statements`
+stores cumulative database-wide statement statistics.
+
+`pg_elapsed_ns` is server-attributed time, not a complete server wall clock.
+PostgreSQL does not attribute protocol parsing and every part of transaction
+bookkeeping to `pg_stat_statements`. For large writes, WAL writes performed
+inside statement execution can also overlap with `pg_query_ns`; the separate
+`pg_query_ns` and `pg_wal_ns` values make that visible.
+Statement and planning statistics add instrumentation overhead, so compare
+results only between runs made with the same PostgreSQL settings.
+
 Usage example:
 ```bash
 # from repo root

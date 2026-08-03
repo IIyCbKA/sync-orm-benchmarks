@@ -60,8 +60,7 @@ if ! [[ "$CYCLES" =~ ^[1-9][0-9]*$ ]]; then
   exit 2
 fi
 
-export RUNNER_BUILD_CONTEXT="$CONTEXT"
-export RUNNER_NAME="$NAME"
+export RUNNER_DOCKERFILE="${CONTEXT#./}/Dockerfile"
 
 LOG_FILE="$SCRIPT_DIR/logs.txt"
 : > "$LOG_FILE"

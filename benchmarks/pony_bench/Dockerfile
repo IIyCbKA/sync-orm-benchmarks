@@ -12,7 +12,7 @@ RUN apt-get update && \
       libpq-dev && \
     rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt ./
+COPY benchmarks/pony_bench/requirements.txt ./
 RUN pip install --upgrade pip && \
     pip wheel --no-cache-dir --wheel-dir /wheels -r requirements.txt
 
@@ -31,12 +31,13 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /pony_bench
 
 COPY --from=builder /wheels /wheels
-COPY requirements.txt ./
+COPY benchmarks/pony_bench/requirements.txt ./
 RUN pip install --no-cache-dir --no-index --find-links /wheels \
       -r requirements.txt && \
     rm -rf /wheels
 
-COPY . .
+COPY benchmarks/pony_bench .
+COPY pg_manager.py ./
 RUN chmod +x /pony_bench/tests/run.sh
 
 RUN printf '%s\n' '#!/bin/sh' \
