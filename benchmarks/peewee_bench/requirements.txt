@@ -1,4 +1,4 @@
-dotenv==0.9.9
 peewee==3.19.0
 psycopg[binary,pool]==3.3.2
+python-dotenv==1.2.1
 types-peewee==3.19.0.20260109
