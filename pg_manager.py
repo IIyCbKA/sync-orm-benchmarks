@@ -1,6 +1,5 @@
 from __future__ import annotations
 from dataclasses import dataclass
-from statistics import median
 from typing import Any, Callable, Sequence
 
 Executor = Callable[[str, Sequence[Any] | None], list[tuple]]
@@ -63,7 +62,6 @@ class PgServerTimer:
     self._probe_ids: set[int] = set()
     self._prepared = False
     self._start: _Snapshot | None = None
-    self.samples: list[PgSample] = []
 
   def _remember(self, query_id: Any) -> None:
     if query_id is not None:
@@ -94,7 +92,7 @@ class PgServerTimer:
     self._prepare()
     self._start = self._snapshot()
 
-  def collect(self) -> int:
+  def collect(self) -> PgSample:
     start = self._start
     if start is None:
       raise RuntimeError('PostgreSQL timer was not started')
@@ -113,21 +111,7 @@ class PgServerTimer:
     if query_ns < 0 or wal_ns < 0 or calls < 0:
       raise RuntimeError('PostgreSQL statistics changed during measurement')
 
-    sample = PgSample(query_ns + wal_ns, query_ns, wal_ns, calls)
-    self.samples.append(sample)
-    return sample.total_ns
-
-  def median_ns(self) -> int | float:
-    return median(sample.total_ns for sample in self.samples)
-
-  def median_query_ns(self) -> int | float:
-    return median(sample.query_ns for sample in self.samples)
-
-  def median_wal_ns(self) -> int | float:
-    return median(sample.wal_ns for sample in self.samples)
-
-  def median_calls(self) -> int | float:
-    return median(sample.calls for sample in self.samples)
+    return PgSample(query_ns + wal_ns, query_ns, wal_ns, calls)
 
 
 def unwrap_connection(connection: Any) -> Any:
@@ -170,7 +154,7 @@ class SessionPgTimer(PgServerTimer):
     self._session = session
     super().reset()
 
-  def collect(self) -> int:
+  def collect(self) -> PgSample:
     try:
       return super().collect()
     finally:
