@@ -7,6 +7,7 @@ import django
 django.setup()
 
 from core.models import Ticket
+from core.pg_manager import pg_timer
 
 from django.db import connection
 connection.ensure_connection()
@@ -15,7 +16,8 @@ LIMIT = int(os.environ.get('LIMIT', '250'))
 SELECT_REPEATS = int(os.environ.get('SELECT_REPEATS', '75'))
 
 
-def select_iteration() -> int:
+def select_iteration() -> tuple[int, int]:
+  pg_timer.reset()
   start = time.perf_counter_ns()
 
   _ = list(
@@ -33,24 +35,31 @@ def select_iteration() -> int:
   )
 
   end = time.perf_counter_ns()
-  return end - start
+  pg_sample = pg_timer.collect()
+
+  return end - start, pg_sample.total_ns
 
 
 def main() -> None:
-  results: list[int] = []
+  elapsed_results: list[int] = []
+  pg_results: list[int] = []
 
   try:
     for _ in range(SELECT_REPEATS):
-      results.append(select_iteration())
+      elapsed_ns, pg_elapsed_ns = select_iteration()
+      elapsed_results.append(elapsed_ns)
+      pg_results.append(pg_elapsed_ns)
   except Exception as e:
     print(f'[ERROR] Test 7 failed: {e}')
     sys.exit(1)
 
-  elapsed = statistics.median(results)
+  elapsed = statistics.median(elapsed_results)
+  pg_elapsed = statistics.median(pg_results)
 
   print(
     f'Django. Test 7. Retrieval with limit including attributes of related record\n'
-    f'elapsed_ns={elapsed}'
+    f'elapsed_ns={elapsed}\n'
+    f'pg_elapsed_ns={pg_elapsed}'
   )
 
 

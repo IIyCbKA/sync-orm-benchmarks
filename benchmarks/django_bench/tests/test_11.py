@@ -8,6 +8,7 @@ import django
 django.setup()
 
 from core.models import Booking
+from core.pg_manager import pg_timer
 from django.db.models import F
 from django.utils import timezone
 
@@ -34,6 +35,7 @@ def main() -> None:
     sys.exit(1)
 
   try:
+    pg_timer.reset()
     start = time.perf_counter_ns()
 
     Booking.objects.filter(book_ref__in=refs).update(
@@ -42,15 +44,18 @@ def main() -> None:
     )
 
     end = time.perf_counter_ns()
+    pg_sample = pg_timer.collect()
   except Exception as e:
     print(f'[ERROR] Test 11 failed (update phase): {e}')
     sys.exit(1)
 
   elapsed = end - start
+  pg_elapsed = pg_sample.total_ns
 
   print(
     f'Django. Test 11. Bulk update of {COUNT} objects\n'
-    f'elapsed_ns={elapsed}'
+    f'elapsed_ns={elapsed}\n'
+    f'pg_elapsed_ns={pg_elapsed}'
   )
 
 

@@ -9,6 +9,7 @@ import django
 django.setup()
 
 from core.models import Booking
+from core.pg_manager import pg_timer
 from django.utils import timezone
 
 from django.db import connection
@@ -31,7 +32,8 @@ def get_curr_date():
   return timezone.now()
 
 
-def create_iteration(i: int) -> int:
+def create_iteration(i: int) -> tuple[int, int]:
+  pg_timer.reset()
   start = time.perf_counter_ns()
 
   Booking.objects.create(
@@ -41,24 +43,31 @@ def create_iteration(i: int) -> int:
   )
 
   end = time.perf_counter_ns()
-  return end - start
+  pg_sample = pg_timer.collect()
+
+  return end - start, pg_sample.total_ns
 
 
 def main() -> None:
-  results: list[int] = []
+  elapsed_results: list[int] = []
+  pg_results: list[int] = []
 
   try:
     for i in range(COUNT):
-      results.append(create_iteration(i))
+      elapsed_ns, pg_elapsed_ns = create_iteration(i)
+      elapsed_results.append(elapsed_ns)
+      pg_results.append(pg_elapsed_ns)
   except Exception as e:
     print(f'[ERROR] Test 1 failed: {e}')
     sys.exit(1)
 
-  elapsed = statistics.median(results)
+  elapsed = statistics.median(elapsed_results)
+  pg_elapsed = statistics.median(pg_results)
 
   print(
     f'Django. Test 1. Single object creation\n'
-    f'elapsed_ns={elapsed}'
+    f'elapsed_ns={elapsed}\n'
+    f'pg_elapsed_ns={pg_elapsed}'
   )
 
 

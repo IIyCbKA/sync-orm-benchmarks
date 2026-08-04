@@ -8,7 +8,7 @@ import django
 django.setup()
 
 from core.models import Booking
-from django.utils import timezone
+from core.pg_manager import pg_timer
 
 from django.db import connection
 connection.ensure_connection()
@@ -21,7 +21,8 @@ AMOUNT_LOW = Decimal('50.00')
 AMOUNT_HIGH = Decimal('500.00')
 
 
-def select_iteration() -> int:
+def select_iteration() -> tuple[int, int]:
+  pg_timer.reset()
   start = time.perf_counter_ns()
 
   _ = list(Booking.objects.filter(
@@ -30,24 +31,31 @@ def select_iteration() -> int:
   ).order_by('total_amount')[OFFSET:OFFSET + LIMIT])
 
   end = time.perf_counter_ns()
-  return end - start
+  pg_sample = pg_timer.collect()
+
+  return end - start, pg_sample.total_ns
 
 
 def main() -> None:
-  results: list[int] = []
+  elapsed_results: list[int] = []
+  pg_results: list[int] = []
 
   try:
     for _ in range(SELECT_REPEATS):
-      results.append(select_iteration())
+      elapsed_ns, pg_elapsed_ns = select_iteration()
+      elapsed_results.append(elapsed_ns)
+      pg_results.append(pg_elapsed_ns)
   except Exception as e:
     print(f'[ERROR] Test 8 failed: {e}')
     sys.exit(1)
 
-  elapsed = statistics.median(results)
+  elapsed = statistics.median(elapsed_results)
+  pg_elapsed = statistics.median(pg_results)
 
   print(
     f'Django. Test 8. Filtered retrieval with offset pagination and sorting\n'
-    f'elapsed_ns={elapsed}'
+    f'elapsed_ns={elapsed}\n'
+    f'pg_elapsed_ns={pg_elapsed}'
   )
 
 

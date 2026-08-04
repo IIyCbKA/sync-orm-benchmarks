@@ -8,6 +8,7 @@ import django
 django.setup()
 
 from core.models import Booking
+from core.pg_manager import pg_timer
 from django.utils import timezone
 
 from django.db import connection
@@ -32,6 +33,7 @@ def get_curr_date():
 
 def main() -> None:
   try:
+    pg_timer.reset()
     start = time.perf_counter_ns()
 
     objs = [
@@ -45,15 +47,18 @@ def main() -> None:
     Booking.objects.bulk_create(objs)
 
     end = time.perf_counter_ns()
+    pg_sample = pg_timer.collect()
   except Exception as e:
     print(f'[ERROR] Test 3 failed: {e}')
     sys.exit(1)
 
   elapsed = end - start
+  pg_elapsed = pg_sample.total_ns
 
   print(
     f'Django. Test 3. Bulk creation of {COUNT} objects\n'
-    f'elapsed_ns={elapsed}'
+    f'elapsed_ns={elapsed}\n'
+    f'pg_elapsed_ns={pg_elapsed}'
   )
 
 
