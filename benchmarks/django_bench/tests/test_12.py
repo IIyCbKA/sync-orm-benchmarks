@@ -20,9 +20,9 @@ def generate_book_ref(i: int) -> str:
 
 
 def delete_iteration(i: int) -> tuple[int, int]:
-  pg_timer.reset()
   booking = Booking.objects.get(pk=generate_book_ref(i))
 
+  pg_timer.reset()
   start = time.perf_counter_ns()
 
   booking.delete()

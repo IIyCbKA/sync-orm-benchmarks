@@ -28,9 +28,9 @@ def get_curr_date():
 
 
 def update_iteration(i: int) -> tuple[int, int]:
-  pg_timer.reset()
   booking = Booking.objects.get(pk=generate_book_ref(i))
 
+  pg_timer.reset()
   start = time.perf_counter_ns()
 
   booking.total_amount /= Decimal('10.00')
@@ -40,7 +40,7 @@ def update_iteration(i: int) -> tuple[int, int]:
   end = time.perf_counter_ns()
   pg_sample = pg_timer.collect()
 
-  return end - start, pg_sample
+  return end - start, pg_sample.total_ns
 
 
 def main() -> None:
