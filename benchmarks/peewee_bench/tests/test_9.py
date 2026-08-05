@@ -3,6 +3,7 @@ from functools import lru_cache
 from datetime import datetime, UTC
 from core.models import Booking
 from core.database import db
+from core.pg_manager import pg_timer
 import os
 import statistics
 import sys
@@ -20,10 +21,11 @@ def get_curr_date():
   return datetime.now(UTC)
 
 
-def update_iteration(i: int) -> int:
+def update_iteration(i: int) -> tuple[int, int]:
   with db.connection_context():
     booking = Booking.get_by_id(generate_book_ref(i))
 
+    pg_timer.reset()
     start = time.perf_counter_ns()
 
     booking.total_amount /= Decimal('10.00')
@@ -31,25 +33,31 @@ def update_iteration(i: int) -> int:
     booking.save(only=[Booking.total_amount, Booking.book_date])
 
     end = time.perf_counter_ns()
+    pg_sample = pg_timer.collect()
 
-  return end - start
+  return end - start, pg_sample.total_ns
 
 
 def main() -> None:
-  results: list[int] = []
+  elapsed_results: list[int] = []
+  pg_results: list[int] = []
 
   try:
     for i in range(COUNT):
-      results.append(update_iteration(i))
+      elapsed_ns, pg_elapsed_ns = update_iteration(i)
+      elapsed_results.append(elapsed_ns)
+      pg_results.append(pg_elapsed_ns)
   except Exception as e:
     print(f'[ERROR] Test 9 failed: {e}')
     sys.exit(1)
 
-  elapsed = statistics.median(results)
+  elapsed = statistics.median(elapsed_results)
+  pg_elapsed = statistics.median(pg_results)
 
   print(
     f'Peewee. Test 9. Single object update\n'
-    f'elapsed_ns={elapsed}'
+    f'elapsed_ns={elapsed}\n'
+    f'pg_elapsed_ns={pg_elapsed}'
   )
 
 

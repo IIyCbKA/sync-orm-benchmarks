@@ -1,5 +1,6 @@
 from core.database import db
 from core.models import Booking
+from core.pg_manager import pg_timer
 import os
 import statistics
 import sys
@@ -12,32 +13,39 @@ def generate_book_ref(i: int) -> str:
   return f'a{i:05d}'
 
 
-def select_iteration() -> int:
+def select_iteration() -> tuple[int, int]:
   with db.connection_context():
+    pg_timer.reset()
     start = time.perf_counter_ns()
 
     _ = Booking.get_by_id(generate_book_ref(1))
 
     end = time.perf_counter_ns()
+    pg_sample = pg_timer.collect()
 
-  return end - start
+  return end - start, pg_sample.total_ns
 
 
 def main() -> None:
-  results: list[int] = []
+  elapsed_results: list[int] = []
+  pg_results: list[int] = []
 
   try:
     for _ in range(SELECT_REPEATS):
-      results.append(select_iteration())
+      elapsed_ns, pg_elapsed_ns = select_iteration()
+      elapsed_results.append(elapsed_ns)
+      pg_results.append(pg_elapsed_ns)
   except Exception as e:
     print(f'[ERROR] Test 6 failed: {e}')
     sys.exit(1)
 
-  elapsed = statistics.median(results)
+  elapsed = statistics.median(elapsed_results)
+  pg_elapsed = statistics.median(pg_results)
 
   print(
     f'Peewee. Test 6. Retrieval by primary key\n'
-    f'elapsed_ns={elapsed}'
+    f'elapsed_ns={elapsed}\n'
+    f'pg_elapsed_ns={pg_elapsed}'
   )
 
 

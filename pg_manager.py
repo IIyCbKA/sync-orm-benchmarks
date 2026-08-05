@@ -115,11 +115,11 @@ class PgServerTimer:
 
 
 def unwrap_connection(connection: Any) -> Any:
-  if hasattr(connection, 'info'):
+  if hasattr(getattr(connection, 'info', None), 'transaction_status'):
     return connection
   for name in ('driver_connection', 'dbapi_connection', 'connection'):
     inner = getattr(connection, name, None)
-    if inner is not None and hasattr(inner, 'info'):
+    if hasattr(getattr(inner, 'info', None), 'transaction_status'):
       return inner
   raise TypeError(f'Unsupported connection: {type(connection)!r}')
 
