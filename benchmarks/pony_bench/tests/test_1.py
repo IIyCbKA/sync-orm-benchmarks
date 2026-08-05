@@ -3,6 +3,7 @@ from decimal import Decimal
 from functools import lru_cache
 from pony.orm import db_session, commit
 from core.models import Booking, db
+from core.pg_manager import pg_timer
 import os
 import statistics
 import sys
@@ -26,8 +27,10 @@ def get_curr_date():
 
 
 @db_session
-def create_iteration(i: int) -> int:
+def create_iteration(i: int) -> tuple[int, int]:
   db.get_connection()
+
+  pg_timer.reset()
   start = time.perf_counter_ns()
 
   Booking(
@@ -38,24 +41,31 @@ def create_iteration(i: int) -> int:
   commit()
 
   end = time.perf_counter_ns()
-  return end - start
+  pg_sample = pg_timer.collect()
+
+  return end - start, pg_sample.total_ns
 
 
 def main() -> None:
-  results: list[int] = []
+  elapsed_results: list[int] = []
+  pg_results: list[int] = []
 
   try:
     for i in range(COUNT):
-      results.append(create_iteration(i))
+      elapsed_ns, pg_elapsed_ns = create_iteration(i)
+      elapsed_results.append(elapsed_ns)
+      pg_results.append(pg_elapsed_ns)
   except Exception as e:
     print(f'[ERROR] Test 1 failed: {e}')
     sys.exit(1)
 
-  elapsed = statistics.median(results)
+  elapsed = statistics.median(elapsed_results)
+  pg_elapsed = statistics.median(pg_results)
 
   print(
     f'Pony. Test 1. Single object creation\n'
-    f'elapsed_ns={elapsed}'
+    f'elapsed_ns={elapsed}\n'
+    f'pg_elapsed_ns={pg_elapsed}'
   )
 
 

@@ -3,6 +3,7 @@ from decimal import Decimal
 from functools import lru_cache
 from pony.orm import db_session, select, commit
 from core.models import Booking
+from core.pg_manager import pg_timer
 import os
 import sys
 import time
@@ -29,6 +30,7 @@ def main() -> None:
     sys.exit(1)
 
   try:
+    pg_timer.reset()
     start = time.perf_counter_ns()
 
     for booking in bookings:
@@ -37,15 +39,18 @@ def main() -> None:
     commit()
 
     end = time.perf_counter_ns()
+    pg_sample = pg_timer.collect()
   except Exception as e:
     print(f'[ERROR] Test 10 failed (update phase): {e}')
     sys.exit(1)
 
   elapsed = end - start
+  pg_elapsed = pg_sample.total_ns
 
   print(
     f'Pony. Test 10. Update of {COUNT} objects in a transaction\n'
-    f'elapsed_ns={elapsed}'
+    f'elapsed_ns={elapsed}\n'
+    f'pg_elapsed_ns={pg_elapsed}'
   )
 
 

@@ -1,5 +1,6 @@
 from pony.orm import db_session, commit
 from core.models import Booking, db
+from core.pg_manager import pg_timer
 import os
 import sys
 import time
@@ -21,21 +22,26 @@ def main() -> None:
   try:
     with db_session:
       db.get_connection()
+
+      pg_timer.reset()
       start = time.perf_counter_ns()
 
       Booking.select(lambda b: b.book_ref in refs).delete(bulk=True)
       commit()
 
       end = time.perf_counter_ns()
+      pg_sample = pg_timer.collect()
   except Exception as e:
     print(f'[ERROR] Test 14 failed (delete phase): {e}')
     sys.exit(1)
 
   elapsed = end - start
+  pg_elapsed = pg_sample.total_ns
 
   print(
     f'Pony. Test 14. Bulk deletion of {COUNT} objects\n'
-    f'elapsed_ns={elapsed}'
+    f'elapsed_ns={elapsed}\n'
+    f'pg_elapsed_ns={pg_elapsed}'
   )
 
 
