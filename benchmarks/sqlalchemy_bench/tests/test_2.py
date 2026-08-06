@@ -3,6 +3,7 @@ from decimal import Decimal
 from functools import lru_cache
 from core.database import SessionLocal
 from core.models import Booking
+from core.pg_manager import pg_timer
 import os
 import sys
 import time
@@ -27,26 +28,30 @@ def get_curr_date():
 def main() -> None:
   try:
     with SessionLocal() as session:
+      pg_timer.reset(session)
       start = time.perf_counter_ns()
 
-      with session.begin():
-        for i in range(COUNT):
-          session.add(Booking(
-            book_ref=generate_book_ref(i),
-            book_date=get_curr_date(),
-            total_amount=generate_amount(i),
-          ))
+      for i in range(COUNT):
+        session.add(Booking(
+          book_ref=generate_book_ref(i),
+          book_date=get_curr_date(),
+          total_amount=generate_amount(i),
+        ))
+      session.commit()
 
       end = time.perf_counter_ns()
+      pg_sample = pg_timer.collect()
   except Exception as e:
     print(f'[ERROR] Test 2 failed: {e}')
     sys.exit(1)
 
   elapsed = end - start
+  pg_elapsed = pg_sample.total_ns
 
   print(
     f'SQLAlchemy. Test 2. Creation of {COUNT} objects in a transaction\n'
-    f'elapsed_ns={elapsed}'
+    f'elapsed_ns={elapsed}\n'
+    f'pg_elapsed_ns={pg_elapsed}'
   )
 
 
