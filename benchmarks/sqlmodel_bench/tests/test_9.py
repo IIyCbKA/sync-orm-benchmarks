@@ -4,6 +4,7 @@ from functools import lru_cache
 from sqlalchemy import select
 from core.database import SessionLocal
 from core.models import Booking
+from core.pg_manager import pg_timer
 import os
 import statistics
 import sys
@@ -21,12 +22,14 @@ def get_curr_date():
   return datetime.now(UTC)
 
 
-def update_iteration(i: int) -> int:
+def update_iteration(i: int) -> tuple[int, int]:
   with SessionLocal() as session:
     booking = session.scalar(
       select(Booking).where(Booking.book_ref == generate_book_ref(i))
     )
+    session.commit()
 
+    pg_timer.reset(session)
     start = time.perf_counter_ns()
 
     booking.total_amount /= Decimal('10.00')
@@ -34,25 +37,31 @@ def update_iteration(i: int) -> int:
     session.commit()
 
     end = time.perf_counter_ns()
+    pg_sample = pg_timer.collect()
 
-  return end - start
+  return end - start, pg_sample.total_ns
 
 
 def main() -> None:
-  results: list[int] = []
+  elapsed_results: list[int] = []
+  pg_results: list[int] = []
 
   try:
     for i in range(COUNT):
-      results.append(update_iteration(i))
+      elapsed_ns, pg_elapsed_ns = update_iteration(i)
+      elapsed_results.append(elapsed_ns)
+      pg_results.append(pg_elapsed_ns)
   except Exception as e:
     print(f'[ERROR] Test 9 failed: {e}')
     sys.exit(1)
 
-  elapsed = statistics.median(results)
+  elapsed = statistics.median(elapsed_results)
+  pg_elapsed = statistics.median(pg_results)
 
   print(
     f'SQLModel. Test 9. Single object update\n'
-    f'elapsed_ns={elapsed}'
+    f'elapsed_ns={elapsed}\n'
+    f'pg_elapsed_ns={pg_elapsed}'
   )
 
 

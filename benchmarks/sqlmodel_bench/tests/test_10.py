@@ -4,6 +4,7 @@ from functools import lru_cache
 from sqlalchemy import select
 from core.database import SessionLocal
 from core.models import Booking
+from core.pg_manager import pg_timer
 import os
 import sys
 import time
@@ -32,23 +33,28 @@ def main() -> None:
       sys.exit(1)
 
     try:
+      pg_timer.reset(session)
       start = time.perf_counter_ns()
 
-      with session.begin():
-        for booking in bookings:
-          booking.total_amount /= Decimal('10.00')
-          booking.book_date = get_curr_date()
+      for booking in bookings:
+        booking.total_amount /= Decimal('10.00')
+        booking.book_date = get_curr_date()
+
+      session.commit()
 
       end = time.perf_counter_ns()
+      pg_sample = pg_timer.collect()
     except Exception as e:
       print(f'[ERROR] Test 10 failed (update phase): {e}')
       sys.exit(1)
 
   elapsed = end - start
+  pg_elapsed = pg_sample.total_ns
 
   print(
     f'SQLModel. Test 10. Update of {COUNT} objects in a transaction\n'
-    f'elapsed_ns={elapsed}'
+    f'elapsed_ns={elapsed}\n'
+    f'pg_elapsed_ns={pg_elapsed}'
   )
 
 
