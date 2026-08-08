@@ -35,32 +35,40 @@ else
   exit 1
 fi
 
-NAME="${1:-}"
-CYCLES="${2:-}"
+ALL_ORMS=(django peewee pony sqlalchemy sqlmodel)
 
-if [ "$#" -ne 2 ]; then
-  echo "Usage: $0 <orm-name> <cycles>" >&2
+CYCLES="${1:-}"
+
+if [ "$#" -lt 1 ]; then
+  echo "Usage: $0 <cycles> [orm-name ...]" >&2
+  echo "       One cycle runs every ORM one after another, so all of them see" >&2
+  echo "       comparable I/O conditions. Without a list the default order is:" >&2
+  echo "       ${ALL_ORMS[*]}" >&2
   exit 1
 fi
-
-case "$NAME" in
-  django) CONTEXT="./benchmarks/django_bench" ;;
-  peewee) CONTEXT="./benchmarks/peewee_bench" ;;
-  pony) CONTEXT="./benchmarks/pony_bench" ;;
-  sqlalchemy) CONTEXT="./benchmarks/sqlalchemy_bench" ;;
-  sqlmodel) CONTEXT="./benchmarks/sqlmodel_bench" ;;
-  *)
-    echo "ERROR: unknown ORM name: '$NAME'. Available: django peewee pony sqlalchemy sqlmodel" >&2
-    exit 2
-    ;;
-esac
 
 if ! [[ "$CYCLES" =~ ^[1-9][0-9]*$ ]]; then
   echo "ERROR: cycles must be a positive integer, got: '$CYCLES'." >&2
   exit 2
 fi
 
-export RUNNER_DOCKERFILE="${CONTEXT#./}/Dockerfile"
+shift
+
+if [ "$#" -gt 0 ]; then
+  ORMS=("$@")
+else
+  ORMS=("${ALL_ORMS[@]}")
+fi
+
+for orm in "${ORMS[@]}"; do
+  case "$orm" in
+    django|peewee|pony|sqlalchemy|sqlmodel) ;;
+    *)
+      echo "ERROR: unknown ORM name: '$orm'. Available: ${ALL_ORMS[*]}" >&2
+      exit 2
+      ;;
+  esac
+done
 
 LOG_FILE="$SCRIPT_DIR/logs.txt"
 : > "$LOG_FILE"
@@ -159,30 +167,39 @@ trap 'exit 130' INT
 trap 'exit 143' TERM
 
 echo "Using compose command: ${DC[*]}"
-echo "Running '$NAME' with context '$CONTEXT' for $CYCLES cycle(s) ..."
+echo "Running $CYCLES cycle(s) over: ${ORMS[*]}"
 echo "Golden volume: $POSTGRES_GOLDEN_VOLUME"
 echo "Run volume: $POSTGRES_RUN_VOLUME"
 echo "Log file: $LOG_FILE"
 
+ensure_golden_volume
+
 for ((iteration = 1; iteration <= CYCLES; iteration++)); do
   echo
   echo ">>> Iteration $iteration of $CYCLES"
-
-  ensure_golden_volume
-  CLEANUP_REQUIRED=1
-  recreate_run_volume_from_golden
-
-  "${DC[@]}" -f "$COMPOSE_FILE" up -d --build
 
   if [ "$iteration" -gt 1 ]; then
     printf '\n' >> "$LOG_FILE"
   fi
   printf 'iteration %d\n' "$iteration" | tee -a "$LOG_FILE"
 
-  echo ">>> Following logs for runner service..."
-  "${DC[@]}" -f "$COMPOSE_FILE" logs -f runner 2>&1 | tee -a "$LOG_FILE"
+  for orm in "${ORMS[@]}"; do
+    echo
+    echo ">>> [$iteration/$CYCLES] $orm"
 
-  stop_and_remove
+    # Every ORM starts from an identical copy of the golden database.
+    export RUNNER_DOCKERFILE="benchmarks/${orm}_bench/Dockerfile"
+
+    CLEANUP_REQUIRED=1
+    recreate_run_volume_from_golden
+
+    "${DC[@]}" -f "$COMPOSE_FILE" up -d --build
+
+    echo ">>> Following logs for runner service..."
+    "${DC[@]}" -f "$COMPOSE_FILE" logs -f runner 2>&1 | tee -a "$LOG_FILE"
+
+    stop_and_remove
+  done
 done
 
 echo

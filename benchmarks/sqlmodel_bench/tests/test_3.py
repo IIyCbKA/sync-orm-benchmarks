@@ -1,6 +1,7 @@
 from datetime import datetime, UTC
 from decimal import Decimal
 from functools import lru_cache
+from sqlalchemy import insert
 from core.database import SessionLocal
 from core.models import Booking
 from core.pg_manager import pg_timer
@@ -31,15 +32,15 @@ def main() -> None:
       pg_timer.reset(session)
       start = time.perf_counter_ns()
 
-      objs = [
-        Booking(
-          book_ref=generate_book_ref(i),
-          book_date=get_curr_date(),
-          total_amount=generate_amount(i),
-        ) for i in range(COUNT)
+      rows = [
+        {
+          'book_ref': generate_book_ref(i),
+          'book_date': get_curr_date(),
+          'total_amount': generate_amount(i),
+        } for i in range(COUNT)
       ]
 
-      session.bulk_save_objects(objs)
+      session.execute(insert(Booking), rows)
       session.commit()
 
       end = time.perf_counter_ns()

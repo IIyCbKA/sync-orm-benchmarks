@@ -37,13 +37,19 @@ https://hub.docker.com/r/denistred/sql-orm-bench-db.
 ### Running
 
 For convenience, a ready-to-use `runner.sh` script is included in the repository root. 
-It accepts the ORM name and the number of benchmark cycles. Every cycle
-starts from a fresh runtime copy of the golden database, follows the runner
-output and then removes the containers, networks and runtime volumes.
+It accepts the number of benchmark cycles and, optionally, the ORMs to run.
+One cycle runs every ORM one after another, so all of them are measured within
+a short time span and under comparable I/O conditions; results are compared
+cycle by cycle rather than between runs made hours apart. Each ORM inside a
+cycle starts from a fresh runtime copy of the golden database, and its
+containers, networks and runtime volumes are removed before the next ORM
+starts.
 
 Each benchmark prints its result to stdout. The runner container logs remain
 visible in the terminal and are also saved to `logs.txt`. This file is created
-next to `runner.sh` and cleared before the first cycle.
+next to `runner.sh` and cleared before the first cycle. Every cycle is marked
+there with an `iteration <k>` line, followed by the output of each ORM in the
+order they ran.
 
 Every supported test reports both client-observed and PostgreSQL-attributed
 timings:
@@ -73,19 +79,25 @@ results only between runs made with the same PostgreSQL settings.
 Usage example:
 ```bash
 # from repo root
-# run the selected ORM benchmark ten times
-./runner.sh <ORM> 10
+# run every ORM, ten cycles
+./runner.sh 10
 ```
 
-List of existing ORMs (use the ORM name from this list for `./runner.sh`):
+```bash
+# from repo root
+# restrict a cycle to the listed ORMs
+./runner.sh 10 django sqlalchemy
+```
+
+List of existing ORMs (this is also the default order inside a cycle):
 - django
 - peewee
 - pony
 - sqlalchemy
 - sqlmodel
 
-**IMPORTANT NOTE:** After every cycle, `runner.sh` stops and removes the
-containers, networks and runtime volumes before starting the next cycle.
+**IMPORTANT NOTE:** After every ORM, `runner.sh` stops and removes the
+containers, networks and runtime volumes before starting the next one.
 
 **IMPORTANT NOTE:** For the correct functioning of the `runner.sh` script, you
 need to have a ready-to-use `.env` in the project root with correct values.
