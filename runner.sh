@@ -107,8 +107,8 @@ ensure_golden_volume() {
   if [ "$ok" -ne 1 ]; then
     echo "ERROR: golden init did not confirm restore." >&2
     docker logs "$init_ctr" >&2 || true
-    docker stop "$init_ctr" >/dev/null 2>&1 || true
-    docker rm "$init_ctr" >/dev/null 2>&1 || true
+    docker rm -f "$init_ctr" >/dev/null 2>&1 || true
+    docker volume rm "$POSTGRES_GOLDEN_VOLUME" >/dev/null 2>&1 || true
     exit 3
   fi
 
