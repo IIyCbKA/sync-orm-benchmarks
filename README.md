@@ -5,9 +5,9 @@ A reproducible benchmarking project to compare popular sync Python ORMs on Postg
 
 The primary database schema used in this project is based on the demonstration 
 schema provided by Postgres Professional: https://postgrespro.ru/education/demodb. 
-For reproducibility, each benchmark run is initialized from a trimmed one-year 
-dump derived from `demo-20250901-3m.sql.gz` (original dump available at 
-https://edu.postgrespro.ru/demo-20250901-3m.sql.gz).
+For reproducibility, each benchmark run is initialized from a trimmed 
+three-month dump derived from `demo-20250901-3m.sql.gz` (original dump 
+available at https://edu.postgrespro.ru/demo-20250901-3m.sql.gz).
 
 To reduce dataset size and focus tests on the relevant domain, the trimmed dump 
 included with this project contains only two tables: **Bookings** and 
