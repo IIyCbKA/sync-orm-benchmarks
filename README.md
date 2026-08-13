@@ -116,7 +116,7 @@ Therefore, it is recommended to run *exclusively* the ready `runner.sh`.
 1. Single object creation
 2. Creation of objects in a transaction
 3. Bulk creation of objects
-4. Retrieval of all records
+4. Retrieval of a large record set
 5. Retrieval of the first record
 6. Retrieval by primary key
 7. Retrieval with limit including attributes of related record

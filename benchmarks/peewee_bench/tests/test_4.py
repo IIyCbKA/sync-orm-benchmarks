@@ -6,6 +6,7 @@ import statistics
 import sys
 import time
 
+LARGE_LIMIT = int(os.environ.get('LARGE_LIMIT', '10000'))
 SELECT_REPEATS = int(os.environ.get('SELECT_REPEATS', '75'))
 
 
@@ -14,7 +15,7 @@ def select_iteration() -> tuple[int, int]:
     pg_timer.reset()
     start = time.perf_counter_ns()
 
-    _ = list(Booking.select())
+    _ = list(Booking.select().limit(LARGE_LIMIT))
 
     end = time.perf_counter_ns()
     pg_sample = pg_timer.collect()
@@ -39,7 +40,7 @@ def main() -> None:
   pg_elapsed = statistics.median(pg_results)
 
   print(
-    f'Peewee. Test 4. Retrieval of all records\n'
+    f'Peewee. Test 4. Retrieval of a large record set\n'
     f'elapsed_ns={elapsed}\n'
     f'pg_elapsed_ns={pg_elapsed}'
   )

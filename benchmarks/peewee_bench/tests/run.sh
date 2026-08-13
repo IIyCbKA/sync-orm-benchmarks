@@ -18,7 +18,7 @@ python -m test_2
 # Test 3 -> Bulk creation of objects
 python -m test_3
 
-# Test 4 -> Retrieval of all records
+# Test 4 -> Retrieval of a large record set
 python -m test_4
 
 # Test 5 -> Retrieval of the first record

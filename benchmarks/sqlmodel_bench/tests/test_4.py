@@ -7,6 +7,7 @@ import statistics
 import sys
 import time
 
+LARGE_LIMIT = int(os.environ.get('LARGE_LIMIT', '10000'))
 SELECT_REPEATS = int(os.environ.get('SELECT_REPEATS', '75'))
 
 
@@ -15,7 +16,7 @@ def select_iteration() -> tuple[int, int]:
     pg_timer.reset(session)
     start = time.perf_counter_ns()
 
-    _ = session.scalars(select(Booking)).all()
+    _ = session.scalars(select(Booking).limit(LARGE_LIMIT)).all()
 
     end = time.perf_counter_ns()
     pg_sample = pg_timer.collect()
@@ -40,7 +41,7 @@ def main() -> None:
   pg_elapsed = statistics.median(pg_results)
 
   print(
-    f'SQLModel. Test 4. Retrieval of all records\n'
+    f'SQLModel. Test 4. Retrieval of a large record set\n'
     f'elapsed_ns={elapsed}\n'
     f'pg_elapsed_ns={pg_elapsed}'
   )
