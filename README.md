@@ -113,6 +113,15 @@ runs if needed and creates a new runtime copy of the original database for the
 current run. It also passes a subset of necessary arguments to docker-compose.
 Therefore, it is recommended to run *exclusively* the ready `runner.sh`.
 
+**IMPORTANT NOTE:** Test 8 filters `total_amount` between `AMOUNT_LOW` and
+`AMOUNT_HIGH` before applying `OFFSET`/`LIMIT`. With the trimmed dump included
+in this project, there are no records with `total_amount` below `1700.00`,
+and the default range (`1700.00`–`2000.00`) contains 30330 matching records
+out of the box, independent of any records created by tests 1 - 3. If you
+change `AMOUNT_LOW`, `AMOUNT_HIGH`, `OFFSET`, or `LIMIT`, make sure
+`OFFSET + LIMIT` stays below the number of records actually falling in that
+range, or Test 8 will fail with a count mismatch.
+
 ---
 
 ### Tests:

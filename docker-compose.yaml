@@ -51,6 +51,8 @@ services:
       LARGE_LIMIT: ${LARGE_LIMIT}
       WARMUP_ITERATIONS: ${WARMUP_ITERATIONS}
       SELECT_REPEATS: ${SELECT_REPEATS}
+      AMOUNT_LOW: ${AMOUNT_LOW}
+      AMOUNT_HIGH: ${AMOUNT_HIGH}
     networks:
       - root
 

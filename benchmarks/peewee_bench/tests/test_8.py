@@ -10,9 +10,8 @@ import time
 LIMIT = int(os.environ.get('LIMIT', '250'))
 OFFSET = int(os.environ.get('OFFSET', '500'))
 SELECT_REPEATS = int(os.environ.get('SELECT_REPEATS', '75'))
-
-AMOUNT_LOW = Decimal('50.00')
-AMOUNT_HIGH = Decimal('500.00')
+AMOUNT_LOW = Decimal(os.environ.get('AMOUNT_LOW', '1700.00'))
+AMOUNT_HIGH = Decimal(os.environ.get('AMOUNT_HIGH', '2000.00'))
 
 
 def select_iteration() -> tuple[int, int]:
