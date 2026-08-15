@@ -20,7 +20,7 @@ def select_iteration() -> tuple[int, int]:
   pg_timer.reset()
   start = time.perf_counter_ns()
 
-  _ = list(
+  results = list(
     Ticket.objects
       .values_list(
         'ticket_no',
@@ -36,6 +36,9 @@ def select_iteration() -> tuple[int, int]:
 
   end = time.perf_counter_ns()
   pg_sample = pg_timer.collect()
+
+  if len(results) != LIMIT:
+    raise AssertionError(f'Expected {LIMIT} results, got {len(results)}')
 
   return end - start, pg_sample.total_ns
 

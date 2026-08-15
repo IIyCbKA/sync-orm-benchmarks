@@ -28,10 +28,13 @@ def select_iteration() -> tuple[int, int]:
         .limit(LIMIT)
         .offset(OFFSET)
     )
-    _ = session.scalars(stmt).all()
+    bookings = session.scalars(stmt).all()
 
     end = time.perf_counter_ns()
     pg_sample = pg_timer.collect()
+
+  if len(bookings) != LIMIT:
+    raise AssertionError(f'Expected {LIMIT} bookings, got {len(bookings)}')
 
   return end - start, pg_sample.total_ns
 

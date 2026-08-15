@@ -15,10 +15,13 @@ def select_iteration() -> tuple[int, int]:
     pg_timer.reset(session)
     start = time.perf_counter_ns()
 
-    _ = session.scalar(select(Booking).order_by(asc(Booking.book_ref)).limit(1))
+    booking = session.scalar(select(Booking).order_by(asc(Booking.book_ref)).limit(1))
 
     end = time.perf_counter_ns()
     pg_sample = pg_timer.collect()
+
+  if booking is None:
+    raise AssertionError('Expected booking, got None')
 
   return end - start, pg_sample.total_ns
 

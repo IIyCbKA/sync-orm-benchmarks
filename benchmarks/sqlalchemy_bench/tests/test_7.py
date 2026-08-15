@@ -31,10 +31,13 @@ def select_iteration() -> tuple[int, int]:
       .order_by(Ticket.ticket_no)
       .limit(LIMIT)
     )
-    _ = session.execute(stmt).all()
+    results = session.execute(stmt).all()
 
     end = time.perf_counter_ns()
     pg_sample = pg_timer.collect()
+
+  if len(results) != LIMIT:
+    raise AssertionError(f'Expected {LIMIT} results, got {len(results)}')
 
   return end - start, pg_sample.total_ns
 

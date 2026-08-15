@@ -16,10 +16,13 @@ def select_iteration() -> tuple[int, int]:
     pg_timer.reset(session)
     start = time.perf_counter_ns()
 
-    _ = session.scalars(select(Booking).limit(LARGE_LIMIT)).all()
+    bookings = session.scalars(select(Booking).limit(LARGE_LIMIT)).all()
 
     end = time.perf_counter_ns()
     pg_sample = pg_timer.collect()
+
+  if len(bookings) != LARGE_LIMIT:
+    raise AssertionError(f'Expected {LARGE_LIMIT} bookings, got {len(bookings)}')
 
   return end - start, pg_sample.total_ns
 

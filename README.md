@@ -51,7 +51,7 @@ next to `runner.sh` and cleared before the first cycle. Every cycle is marked
 there with an `iteration <k>` line, followed by the output of each ORM in the
 order they ran.
 
-Every supported test reports both client-observed and PostgreSQL-attributed
+Every supported test collects both client-observed and PostgreSQL-attributed
 timings:
 
 - `elapsed_ns` is the existing wall-clock measurement around the ORM operation.
@@ -61,6 +61,10 @@ timings:
 - `pg_elapsed_ns` is `pg_query_ns + pg_wal_ns`.
 - `pg_calls` is the number of statements, including explicit transaction
   commands tracked by PostgreSQL.
+
+By default, each test prints only `elapsed_ns` and `pg_elapsed_ns`; the
+underlying `pg_query_ns`, `pg_wal_ns`, and `pg_calls` values are collected
+but not printed.
 
 The PostgreSQL window includes the closing `COMMIT` or `ROLLBACK`, including
 transactions created implicitly by an ORM. Probe queries run outside the

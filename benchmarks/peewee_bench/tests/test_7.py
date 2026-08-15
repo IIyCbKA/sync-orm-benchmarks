@@ -29,10 +29,13 @@ def select_iteration() -> tuple[int, int]:
       .join(Booking, on=(Ticket.book_ref == Booking.book_ref))
       .order_by(Ticket.ticket_no)
       .limit(LIMIT))
-    _ = list(query.tuples())
+    results = list(query.tuples())
 
     end = time.perf_counter_ns()
     pg_sample = pg_timer.collect()
+
+  if len(results) != LIMIT:
+    raise AssertionError(f'Expected {LIMIT} results, got {len(results)}')
 
   return end - start, pg_sample.total_ns
 

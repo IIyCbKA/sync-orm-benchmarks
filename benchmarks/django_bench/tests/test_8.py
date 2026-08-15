@@ -25,13 +25,16 @@ def select_iteration() -> tuple[int, int]:
   pg_timer.reset()
   start = time.perf_counter_ns()
 
-  _ = list(Booking.objects.filter(
+  bookings = list(Booking.objects.filter(
     total_amount__gte=AMOUNT_LOW,
     total_amount__lte=AMOUNT_HIGH
   ).order_by('total_amount')[OFFSET:OFFSET + LIMIT])
 
   end = time.perf_counter_ns()
   pg_sample = pg_timer.collect()
+
+  if len(bookings) != LIMIT:
+    raise AssertionError(f'Expected {LIMIT} bookings, got {len(bookings)}')
 
   return end - start, pg_sample.total_ns
 
